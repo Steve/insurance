@@ -1,241 +1,166 @@
-# Discovery: Delegated Insurance Coverage Assurance  
-*Instance-grounded • Pattern-level • Prosocial by design*
+# Discovery: Delegated Health Coverage & Claims Assurance  
+*Problem-driven • Instance-grounded • Pattern-level • Prosocial*
 
 ---
 
-## 1. Context & Current Reality (Baseline)
+## 1. Context (Anonymized)
 
-### Current state: ad-hoc discovery of failure
+A household transitioned to continuation health coverage (COBRA) following a job change.
 
-Today, coverage problems are discovered **reactively, fragmentedly, and accidentally**—after harm has already occurred.
+Over approximately mid-2025 through early-2026, the household interacted with:
+- A former employer (benefits sponsor)
+- A COBRA administrator
+- One health insurer in Year 1 and a different insurer in Year 2
+- Multiple healthcare providers, including an emergency hospitalization
+- Provider billing departments and insurer claims/EOB portals
 
-**Typical discovery paths include:**
-
-- **Unexpected bills**
-  - “Why did PlushCare send me a bill for $123?”
-  - Investigation reveals:
-    - Claim denied on insurer website
-    - Customer support says COBRA wasn’t active
-    - This contradicts the individual’s knowledge that COBRA was paid on time
-
-- **Unexpected coverage change notifications**
-  - Email stating dependents are no longer covered
-  - Resolution requires:
-    - Contacting the insurer
-    - Being redirected to the former employer
-    - Employer coordinating with the COBRA administrator
-    - Days later, written confirmation that it was “fixed”
-    - Subsequent emails and portal checks to confirm restoration
-
-**In all cases:**
-- Discovery happens *after* claims or care are affected
-- The individual reconstructs facts across multiple systems
-- Resolution is slow, manual, and stressful
-
-This is the status quo this discovery seeks to replace.
+COBRA premiums were paid on time each month when payment paths were available.
 
 ---
 
-## 2. Counterfactual Insight (Why this problem exists)
+## 2. Core Tension
 
-> **This problem could be “solved” today by paying someone to check coverage every day.**
+Individuals delegate health coverage, enrollment, and claims administration to institutions, yet remain fully exposed to the consequences of failure.
 
-This reveals the core failure:
-- Not correctness
-- Not complexity
-- **Who bears the cost of vigilance**
+Institutions:
+- Control status and state transitions  
+- Operate across fragmented systems  
+- Do not reliably surface errors early  
 
-Institutions implicitly assume individuals will absorb that cost.
+Individuals:
+- Bear care, financial, and emotional risk  
+- Discover problems late  
+- Must coordinate corrections across institutions  
 
----
-
-## 3. Core Problem (Restated Clearly)
-
-> Individuals delegate health insurance administration to institutions but remain exposed to the consequences of silent failure, without reliable, continuous assurance that coverage is intact.
-
-This leads to:
-- Delayed discovery
-- Preventable harm
-- Cognitive and emotional burden
-- Reinforced power asymmetry
+This creates a **structural asymmetry of power, observability, and responsibility**.
 
 ---
 
-## 4. Stakes & Priorities (Locked)
+## 3. Primary Risk Ordering
 
-### Primary risk
-- **Inability to access care**
+1. **Prevent disruption to care**  
+2. **Prevent financial loss**  
+3. **Reduce stress and uncertainty**
 
-### Priority order
-1. Prevent disruption to care  
-2. Prevent financial loss  
-3. Prevent stress and uncertainty  
-
-This ordering governs all future decisions.
+This ordering governs all prioritization.
 
 ---
 
-## 5. Definition of Failure (Operational)
+## 4. Observed Problems (from Discovery)
 
-A failure is:
+### A. Billing & Reconciliation Failures
+- Provider bills cannot be paid because charges cannot be reconciled with insurer EOBs.
+- Provider statements aggregate charges, while EOBs contain many service-line items.
+- Itemized bills are required but not automatically provided.
+- Multiple bills are marked past due while reconciliation is in progress.
 
-> Any lapse or inconsistency in eligibility or coverage status for any individual that affects access to care or claim adjudication—regardless of whether payment was made correctly.
+### B. Claims Denied Due to Coverage State
+- Multiple claims denied with reasons indicating coverage was terminated.
+- Insurer indicates “manual review” is required.
+- Resolution is slow and requires active monitoring.
 
-**Clarifications:**
-- Partial failures (e.g., dependents dropped) are equally unacceptable
-- Initial focus: **eligibility / active status**
-- Plan correctness is intentionally deferred
+### C. COBRA Payment Path Failures
+- At times, no reliable way exists to pay for upcoming COBRA coverage periods.
+- Payment path failures create risk of future coverage lapse.
 
----
+### D. Claims Visibility & Submission Gaps
+- Providers report claims rejected or not accepted.
+- Corresponding claims are not visible in insurer portals.
+- Individuals are asked to relay filing instructions to providers.
+- Final status of some claims is unknown.
 
-## 6. Detection Requirements
+### E. Coverage & Dependent State Drift
+- Coverage initially inactive due to incomplete enrollment.
+- Dependents dropped from coverage multiple times across consecutive days.
+- Coverage restored after multi-party coordination, but recurrence occurred.
 
-- **Detection latency:** ≤ 1 day
-- No “safe windows”—risk is constant
-- Discovery must occur *before*:
-  - Claims are denied
-  - Care is disrupted
-  - Retroactive fixes become harder
+### F. Data Quality Errors
+- Incorrect dependent identity data (e.g., name mismatch) discovered in enrollment records.
+- Such errors risk claim rejection and eligibility confusion.
 
----
+### G. Coding-Driven Coverage Variance
+- Identical services covered on one date and not another due to coding differences.
+- Resolution requires provider resubmission or insurer review.
+- Non-obvious to patients.
 
-## 7. Granularity of Assurance
+### H. Reimbursement Workflow Ambiguity
+- Self-paid services require reimbursement submission.
+- Individuals must determine what constitutes an acceptable “superbill” or itemized receipt.
+- Confirmation of successful submission is unclear.
 
-- Confidence must exist at the **individual level**
-- Family-level assertions are insufficient
-- Each covered person’s eligibility matters independently
-
----
-
-## 8. Ambiguity & Conflict Handling
-
-Design preference:
-
-> **Always explain conflicts.**
-
-- Conflicting institutional states are surfaced
-- Ambiguity is first-class
-- False positives are preferred over false negatives
-- Disagreement is never hidden or normalized away
-
----
-
-## 9. Trust & Authority Model
-
-- No single trusted source
-- Verbal reassurance is insufficient
-- Written confirmation from a human matters **only when a problem is being fixed**
-- The system supports **justified confidence**, not blind trust
+### I. Low-Signal Anomalies
+- EOBs occasionally contain unexpected service categories.
+- Impact unclear without investigation.
 
 ---
 
-## 10. Desired Experience (Progressive Confidence)
+## 5. Current State of Problems
 
-### Phase 1: Transparency & inspection
-- Ability to check status
-- Ability to inspect underlying facts
-- Repeated exposure builds confidence
+### Unresolved / Active
+- Provider bills pending reconciliation (past due)
+- Claims denied due to coverage termination
+- Inability to pay upcoming COBRA coverage
+- Missing or incomplete claim submissions (final status unknown)
 
-### Phase 2: Reduced vigilance
-- Manual checking decreases
-- Silence becomes meaningful
-
-### Phase 3: Steady-state assurance
-- Zero involvement unless something breaks
-- On-demand verification remains available
-
-Success is *boring reliability*, not heroics.
+### Resolved (but recurring risk)
+- Dependents dropped from coverage
+- Initial COBRA enrollment incomplete
+- Identity/data errors in enrollment
+- Coding-driven coverage variance
+- Reimbursement workflow confusion
 
 ---
 
-## 11. Evidence & Preparedness
+## 6. Detection & Timing Requirements
 
-When something goes wrong, success means the individual can:
-
-1. Know **that** something is wrong  
-2. Know **what** is wrong (facts, not guesses)  
-3. Use that information to **prove it to an institution**
-
-Evidence is a primary output, not a byproduct.
+- Detection of discrepancies affecting care or claims must occur within **days**, not weeks.
+- Discovery after harm (denials, past-due bills, collections risk) is unacceptable.
 
 ---
 
-## 12. Power Asymmetry (Explicit Motivation)
+## 7. Trust & Evidence Model
 
-This problem reflects a structural asymmetry:
-- Institutions control status
-- Individuals bear consequences
-- Detection responsibility is shifted to the individual
-
-### Intentional counter-move
-
-> **Encourage confidence in individuals to rebalance power against institutions.**
-
-This is not adversarial; it restores symmetry between responsibility and observability.
+- No single institutional source is fully authoritative.
+- Confidence requires **cross-checking signals**, not blind trust.
+- Evidence must be:
+  - Inspectable
+  - Portable
+  - Sufficient to support correction without reconstructing history from memory
 
 ---
 
-## 13. Prosocial & Accessibility Commitment
+## 8. Desired End State (Discovery-Level)
 
-This work is intentionally **prosocial**:
-
-- Everyone should be able to trust that their coverage is correct
-- Confidence should not require:
-  - Technical skill
-  - Time availability
-  - Financial privilege
-
-**Design intent:**
-- Usable by non-technical people
-- Accessible to the masses
-- Technology serves people—not the reverse
+If this problem were solved:
+- The household would not need to proactively “check” coverage or claims.
+- Problems would surface early, with context and evidence.
+- Resolution would be tracked to closure.
+- Silence would be meaningful.
+- Confidence would be justified, not assumed.
 
 ---
 
-## 14. Reuse & Generalization Intent
+## 9. Pattern-Level Insight
 
-Trajectory:
-1. Solve for one individual
-2. Enable family use
-3. Make available to others
-4. Generalize across domains
-5. Generalize across insurance types
+This instance reflects a broader class of problems:
 
-Discovery is **domain-thin and pattern-thick** to support reuse.
+> **Delegated institutional systems where individuals bear consequences but lack continuous observability.**
 
----
+Examples include:
+- Health insurance eligibility and claims
+- COBRA administration
+- School enrollment
+- Benefits administration
+- Licensing and certification
 
-## 15. Success Convincer
-
-> **Seeing consistent status and underlying data multiple times until trust is earned.**
-
-Trust is built through repetition and transparency—not promises.
+This discovery intentionally operates at a level suitable for reuse.
 
 ---
 
-## 16. One-Sentence Problem Statement (Final)
+## 10. Discovery Status
 
-> Individuals lack continuous, trustworthy visibility into delegated insurance coverage, causing eligibility lapses that disrupt care and claims to be discovered only after harm occurs—reinforcing power asymmetry and forcing ongoing manual vigilance.
+Discovery is considered **complete**.
 
----
-
-## 17. Discovery Completion Status
-
-**Discovery has fully answered:**
-- What problem is being solved
-- Why current approaches fail
-- What failure means
-- What success means
-- Who it is for
-- Why it matters socially
-- How it generalizes
-
-**Intentionally deferred to planning/design:**
-- Operationalization details
-- Evidence formats
-- State representations
-- Measurement mechanisms
-
----
+Open questions are explicitly acknowledged rather than assumed resolved, and are suitable inputs to planning rather than further discovery.
 
 *End of Discovery Document*
