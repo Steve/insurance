@@ -1,6 +1,6 @@
 # Plan
-## Delegated Insurance Coverage Assurance System
-*Local-first eligibility monitoring to detect institutional failures before they cause harm*
+## Delegated Health Coverage & Claims Assurance System
+*Problem-driven, constraint-first implementation to resolve active household harm*
 
 **Proposal reference**: [docs/planning/proposal.md](./proposal.md)
 
@@ -8,23 +8,33 @@
 
 ## The Brief
 
-This plan delivers a local-first insurance eligibility assurance system for individual and family use, built on DXOS. The system continuously monitors coverage status across institutional sources (employer, insurer, COBRA administrator) and alerts users to discrepancies within 1 day—before denied claims or disrupted care occur.
+This plan implements a local-first health coverage and claims assurance system to resolve active administrative failures causing financial harm, care disruption, and persistent uncertainty for a household.
 
-**Context**: Individuals delegate insurance administration to institutions yet remain exposed when coverage silently lapses or diverges. Current discovery is reactive: problems surface only after harm (denied claims, unexpected bills, care access issues). This system shifts detection earlier, reducing the vigilance tax on individuals and rebalancing the power asymmetry with institutions.
+**Context**: The household is currently unable to:
+1. Pay provider bills due to unreconcilable charges (past-due bills from hospitalization)
+2. Resolve claims denied for "terminated coverage" despite active coverage intent
+3. Pay upcoming COBRA coverage due to unavailable payment path
+4. Determine status of missing or incomplete claim submissions
 
-**This is a learning-first project** with three interconnected goals:
-1. Understand GenAI as a first-class collaborator across the full product lifecycle (Discovery → Proposal → Plan → Delivery)
-2. Learn local-first architectural constraints through DXOS implementation
-3. Build a real, prosocial system that solves a personally meaningful problem
+These are not theoretical problems—they represent **active harm** requiring immediate resolution. Secondary problems (dependents dropped, enrollment errors, coding variance, reimbursement ambiguity, EOB anomalies) will be addressed after active harm is resolved.
 
-**Important non-negotiables being respected**:
-- Coverage discrepancies affecting care must be detected within 1 day
-- The system must be usable by non-technical people
-- Local-first data ownership cannot be compromised
-- The system must never assert correctness it cannot justify
-- Conflicting institutional states must always be surfaced, never hidden
+**This is a learning-first project** with three goals:
+1. Deliver immediate, practical value (resolve active problems in days)
+2. Learn GenAI as first-class collaborator across full product lifecycle
+3. Learn local-first architecture (DXOS) through real-world constraints
 
-**Explicit boundaries**: This system does NOT automate correction/appeals, optimize claims, commercialize initially, or attempt to override institutional systems.
+**Implementation philosophy**: **Constraint-first progression**. Work is sequenced to remove the most constraining problem at any given time. Each increment must deliver immediate, real-world value. The current constraint is re-evaluated after each delivery.
+
+**Important non-negotiables being respected** (from Proposal section 5):
+1. Discrepancies affecting care or claims must be detected within days (not months)
+2. Conflicting institutional states must always be surfaced (never hidden)
+3. Individual-level coverage must be independently visible
+4. Continuous manual vigilance must not be required in steady state
+5. The system must be usable by non-technical users
+6. The system must not assert correctness it cannot justify (show evidence, not conclusions)
+7. Local-first data ownership must not be compromised (DXOS architecture)
+
+**Scope**: Phase 1 addresses 4 active problems causing current harm. Phase 2 addresses 6 prevention problems to avoid recurrence. See Proposal Appendix A for detailed problem narratives and signals.
 
 ---
 
@@ -32,97 +42,197 @@ This plan delivers a local-first insurance eligibility assurance system for indi
 
 These implementation guardrails must be referenced during review and survive conversion into work items:
 
-1. **1-day detection requirement**: Coverage discrepancies that could affect access to care must be detected and surfaced within 24 hours
-2. **Transparency over certainty**: Conflicting institutional states must always be surfaced to the user; uncertainty must be explicit, not hidden
-3. **Individual-level visibility**: Each covered individual's eligibility status must be independently observable
-4. **Zero vigilance tax**: The system must operate without requiring continuous manual checking by the user
-5. **Non-technical usability**: The system must be understandable and actionable by people without technical expertise
-6. **Justified confidence only**: The system must never assert correctness beyond what its evidence supports; confidence levels must be explicit
-7. **Inviolable local-first ownership**: User data must remain under local control; DXOS architecture must not be compromised for convenience
-8. **Learning over optimization**: When choosing between learning opportunities and efficiency, prefer learning (e.g., prefer understanding DXOS deeply over using familiar but cloud-first alternatives)
-9. **Observability over authority**: Design for helping users understand what's happening, not for making decisions on their behalf
-10. **Asymmetry rebalancing**: Every design choice must be evaluated against whether it increases individual confidence and reduces institutional information advantage
+1. **Constraint-first sequencing**: Work must address the most constraining active problem first. Unresolved problems causing harm take priority over prevention or optimization. Re-evaluate constraint ordering after each increment.
+
+2. **Smallest useful increment**: Every delivery must provide immediate, real-world value—even if imperfect. A manual workflow that resolves an active problem is more valuable than an automated system that addresses a future problem.
+
+3. **Days, not weeks**: Phase 1 problems must see measurable progress within days of starting work. If an increment takes >5 days, it's too large.
+
+4. **Transparency over certainty**: Conflicting data must be surfaced to the user with evidence. The system shows "Insurer says X, Provider says Y" rather than asserting which is correct.
+
+5. **Justified confidence only**: The system must never claim correctness it cannot support with captured evidence. Uncertainty is explicit.
+
+6. **Local-first integrity**: All data (coverage snapshots, claims, EOBs, bills, COBRA records) stored locally in DXOS. No cloud dependencies for core data.
+
+7. **Non-technical accessibility**: The system must be usable by household members without technical expertise. Plain language, clear actions, minimal abstractions.
+
+8. **Detection within days**: Coverage or claims discrepancies affecting care must be detected within days (manual capture acceptable initially; automation only after value proven).
+
+9. **Learning over optimization**: When choosing between delivery speed and learning depth, prefer learning (DXOS patterns, GenAI collaboration, problem understanding) as long as it doesn't block resolving active harm.
+
+10. **Problem-driven validation**: Success is measured by whether active problems are resolved, not by system completeness. If provider bills can be paid, claims get reprocessed, COBRA payment works, and missing claims are found—the system succeeded, even if incomplete.
 
 ---
 
 ## Unknowns requiring decision
 
-The following decisions have been resolved based on review:
+The following decisions must be made before or during delivery:
 
-### 1. Data acquisition method
-**Decision**: **Option B - Automated scraping of institutional web portals**
+### 1. Data capture method for Phase 1
 
-Automated scraping is the chosen approach, with extensive architectural support for maintainability, testability, and user confidence.
+**Question**: How should initial data (provider bills, EOBs, claim status, COBRA records) be captured given the need for value in days?
 
-**Implementation requirements**:
+**Options**:
+- **Option A**: Manual data entry forms (text fields, file upload for PDFs)
+  - *Trade-off*: Slowest for ongoing use, but fastest to build and validate value
+  - *Pro*: Can deliver working system in 2-3 days
+  - *Con*: Requires manual effort every time; doesn't scale
 
-1. **Portal change detection and notification**: When a scraper detects that a portal's structure has changed (scraping fails or extracts unexpected data), treat this as an assurance problem and notify the user, similar to coverage discrepancy alerts. This ensures users know when monitoring may be compromised.
+- **Option B**: Automated scraping from institutional portals
+  - *Trade-off*: Highest long-term value, but risky and slow to build
+  - *Pro*: Zero vigilance tax after initial setup
+  - *Con*: May take weeks; fragile to portal changes; may not unblock current harm
 
-2. **Independent scraper components**: Each institutional scraper (e.g., Sana Benefits scraper, UnitedHealthcare scraper) must be architecturally independent and runnable as a standalone component, separate from the larger system. This supports:
-   - Independent development and testing
-   - Selective deployment (only run scrapers for user's specific institutions)
-   - Easier maintenance when portal changes occur
+- **Option C**: Hybrid—manual entry for Phase 1, scraping for Phase 2+
+  - *Trade-off*: Pragmatic sequencing; validates value before automation investment
+  - *Pro*: Unblocks active problems immediately; defers automation until patterns clear
+  - *Con*: Rebuilding data ingestion layer later
 
-3. **TDD structure for scrapers**: Develop test-driven development scaffolding for scrapers that can:
-   - Test against captured portal data (HTML snapshots, API responses)
-   - Validate extraction logic without live portal access
-   - Detect breaking changes when portal structure changes
-   - Support regression testing as scrapers evolve
+**Recommendation**: **Option C (hybrid)**. Start with manual entry to resolve Phase 1 problems in days. Add scraping in Phase 2 only if manual effort becomes constraining.
 
-4. **Manual scraper execution scaffold**: Build tooling to manually trigger a scraper against a live portal and observe:
-   - What data is being extracted
-   - How extraction logic is interpreting portal structure
-   - Where extraction may be failing or producing unexpected results
-   - This supports debugging and gives users confidence in what's happening
+**Decision owner**: Implementation team; can pivot based on Phase 1 learnings.
 
-5. **Headed scraping option**: Consider architecture supporting "headed" browser automation where the user can optionally watch (in a visible browser window) as the system impersonates them to log in and scrape data. This increases:
-   - **Technical confidence**: User sees exactly what the system is doing
-   - **Security confidence**: User observes credential usage and can verify no unexpected actions
-   - **Privacy confidence**: User can audit what data is being accessed
-   - Implementation note: Default to headless (background) operation, but support headed mode for transparency
-
-**Decision rationale**: Automated scraping delivers the highest value (zero vigilance tax) and fits the learning-first goal. The extensive scaffolding requirements mitigate scraper fragility risk and maintain user trust through transparency.
+**Rationale**: Constraint-first progression says "resolve active harm first." Manual entry unblocks bill reconciliation, claim tracking, and COBRA payment investigation immediately. Automation addresses future constraint (vigilance tax), not current constraint (lack of visibility).
 
 ---
 
-### 2. Notification delivery mechanism
-**Decision**: **Option B (email) as minimum viable notification; Option C (push notifications) as stretch goal if DXOS patterns exist**
+### 2. Bill-to-EOB reconciliation approach
 
-Email notifications sent from the local DXOS client meet the "no vigilance" constraint. Push notifications remain a stretch goal pending DXOS capability investigation.
+**Question**: How should the system help reconcile aggregated provider bills with detailed insurer EOBs given that itemized bills are missing?
 
-**Decision rationale**: Email is reliable, universally accessible, and achievable within local-first constraints. Push notifications would improve UX but require DXOS-compatible infrastructure.
+**Options**:
+- **Option A**: Manual matching UI (side-by-side comparison, user marks matches)
+  - *Trade-off*: Labor-intensive but gives user full control and transparency
+  - *Pro*: Works even when automated matching impossible; user learns patterns
+  - *Con*: Tedious for large bill sets
 
----
+- **Option B**: Automated matching by amount, date, provider (with confidence scoring)
+  - *Trade-off*: Faster but may produce false positives/negatives
+  - *Pro*: Reduces manual effort significantly
+  - *Con*: Aggregated charges don't have 1:1 EOB line items; matching ambiguous
 
-### 3. Multi-user (family) data architecture
-**Decision**: **Option C - Hierarchical with documented future migration path**
+- **Option C**: Assisted matching (system suggests, user confirms/overrides)
+  - *Trade-off*: Combines automation speed with user validation
+  - *Pro*: Transparent (user sees suggestions and rationale); user can correct errors
+  - *Con*: More complex to build than pure manual or pure automated
 
-Primary user Space contains family member data. Document architecture to support future migration where adult dependents could gain independent Space control.
+**Recommendation**: **Option A (manual) for Phase 1, Option C (assisted) if reconciliation becomes routine**.
 
-**Decision rationale**: Pragmatic for initial family use while respecting future autonomy needs. Avoids premature complexity of per-person Spaces.
+**Decision owner**: After Phase 1 increment 1 (bill reconciliation prototype).
 
----
-
-### 4. Discrepancy detection algorithm approach
-**Decision**: **Option C - Rule-based with confidence scoring**
-
-Detection uses transparent, rule-based logic with explicit confidence scoring.
-
-**Additional requirement**: **Rules visibility for users** - The system must provide current or future visibility into detection rules so users can understand why alerts fired. This could be:
-- In-app rule viewer showing active detection logic
-- Per-alert explanation of which rule triggered and why
-- Documentation of rule logic in plain language
-
-**Decision rationale**: Maintains transparency and justified confidence constraints. Users must be able to audit the system's reasoning. ML-based approaches would violate this requirement.
+**Rationale**: The household has ~3-5 pending provider bills from one hospitalization. Manual matching UI can be built in 1-2 days and unblocks payment decisions immediately. If reconciliation becomes ongoing activity (multiple providers, recurring services), assisted matching adds value.
 
 ---
 
-### 5. What constitutes "active coverage" across sources
-**Decision**: **Option C for internal model, with simplified Option B presentation**
+### 3. COBRA payment path investigation approach
 
-Internally, model multi-dimensional status (enrollment status, payment status, effective date status). Present to users with institutional terminology preserved: "Insurer says X, Employer says Y."
+**Question**: The household cannot pay upcoming COBRA coverage. How should the system help investigate and resolve this?
 
-**Decision rationale**: Most accurate internal representation while presenting information in user-understandable format tied to institutional sources.
+**Options**:
+- **Option A**: Evidence capture tool (log contact attempts, responses, dates, people contacted)
+  - *Trade-off*: Doesn't automate solution but provides audit trail for escalation
+  - *Pro*: Can be built in hours; provides structure for multi-party coordination
+  - *Con*: Doesn't solve payment path; just documents problem
+
+- **Option B**: Automated COBRA administrator portal integration
+  - *Trade-off*: Could enable direct payment if portal functional
+  - *Pro*: If portal works, payment is resolved
+  - *Con*: Portal may not work (that's the problem); integration takes days/weeks
+
+- **Option C**: Hybrid—evidence capture + portal integration spike
+  - *Trade-off*: Spike answers "is portal usable?"; evidence capture provides fallback
+  - *Pro*: Rapid spike (4 hours) determines if automation viable; evidence tool useful regardless
+  - *Con*: Spike may reveal portal unusable (but that's valuable information)
+
+**Recommendation**: **Option C (hybrid)**. 4-hour spike to test COBRA portal payment flow. If broken/unusable, build evidence capture tool same day. If functional, integrate payment.
+
+**Decision owner**: After COBRA payment spike (Phase 1 increment 3).
+
+**Rationale**: Payment deadline approaching (constraint). Spike answers "is portal the problem or is process the problem?" quickly. Evidence tool supports manual resolution if needed.
+
+---
+
+### 4. Claim status tracking granularity
+
+**Question**: What level of detail should the system track for claims given missing/incomplete claims and denied claims?
+
+**Options**:
+- **Option A**: High-level status only (submitted, pending, paid, denied)
+  - *Trade-off*: Simpler to capture and display; may miss nuance
+  - *Pro*: Fast to implement; sufficient for "is claim missing?" question
+  - *Con*: Doesn't capture denial reasons, reprocessing state, appeals status
+
+- **Option B**: Detailed tracking (denial codes, reprocessing, appeals, status history)
+  - *Trade-off*: Comprehensive but complex data model
+  - *Pro*: Answers Phase 1 Step 2 (denied claims) and Step 4 (missing claims) fully
+  - *Con*: Takes longer to build; may include unused fields
+
+- **Option C**: Progressive detail (start high-level, add fields as questions arise)
+  - *Trade-off*: Incremental complexity growth
+  - *Pro*: Delivers value quickly; expands based on real usage
+  - *Con*: Schema evolution overhead
+
+**Recommendation**: **Option C (progressive)**. Start with: claim ID, date of service, provider, amount, status (submitted/pending/paid/denied), denial reason (if denied), last updated. Add fields when real questions demand them.
+
+**Decision owner**: Implementation team during Phase 1 increment 2 (claims tracking).
+
+**Rationale**: Smallest useful increment. High-level status answers "is this claim missing?" and "why was it denied?" Additional detail (reprocessing attempts, appeal history) added when needed for resolution.
+
+---
+
+### 5. DXOS architecture pattern
+
+**Question**: Should the system use the tuple-space pattern (from previous plan) or a simpler architecture given aggressive delivery timeline?
+
+**Options**:
+- **Option A**: Tuple-space pattern (multiple independent DXOS instances coordinating via tuples)
+  - *Trade-off*: Elegant for automation and loose coupling, but adds complexity
+  - *Pro*: Supports future automation (scrapers as independent services)
+  - *Con*: Overkill for manual data entry; delays Phase 1 delivery
+
+- **Option B**: Monolithic DXOS application (single process, direct function calls)
+  - *Trade-off*: Simpler and faster to build; harder to add automation later
+  - *Pro*: Can deliver Phase 1 in days; easier to debug; sufficient for manual workflows
+  - *Con*: Refactoring needed for scraper independence (but that's Phase 2+ concern)
+
+- **Option C**: Monolithic with abstraction layers (anticipate future tuple pattern)
+  - *Trade-off*: Compromise between delivery speed and future flexibility
+  - *Pro*: Clean interfaces make refactoring easier
+  - *Con*: More upfront design than pure monolithic
+
+**Recommendation**: **Option B (monolithic) for Phase 1**, revisit for Phase 2. Constraint-first says "deliver value in days." Tuple pattern is elegant but unnecessary for manual workflows.
+
+**Decision owner**: Implementation team during Epic 1 (DXOS foundation).
+
+**Rationale**: Phase 1 problems don't require scraping or background automation—they require visibility and evidence capture. Monolithic architecture delivers this faster. Refactor to tuple pattern if/when automation becomes constraining.
+
+---
+
+### 6. Multi-user (family) data model
+
+**Question**: How should data for multiple family members be organized in DXOS?
+
+**Options**:
+- **Option A**: Single user, all family data in one Space
+  - *Trade-off*: Simplest; assumes single household administrator
+  - *Pro*: Fastest to implement; matches current reality (one person handling all admin)
+  - *Con*: Doesn't scale if family members want independent access later
+
+- **Option B**: Per-person Spaces with sharing
+  - *Trade-off*: Future-proof but premature for current need
+  - *Pro*: Supports autonomy
+  - *Con*: Complex; delays delivery; overkill for household of 2-3 managed by one person
+
+- **Option C**: Single Space, hierarchical data, document migration path
+  - *Trade-off*: Pragmatic with documented future
+  - *Pro*: Simple now, clear evolution path
+  - *Con*: Migration work deferred
+
+**Recommendation**: **Option A for Phase 1** (single Space, all family data). Document Option C migration path for future.
+
+**Decision owner**: Implementation team during Epic 1 (data schema design).
+
+**Rationale**: Current constraint is resolving active problems for household. Complex multi-user architecture is premature optimization.
 
 ---
 
@@ -130,303 +240,159 @@ Internally, model multi-dimensional status (enrollment status, payment status, e
 
 ### Implementation approach
 
-This system will be built as a **local-first DXOS application** with four primary layers, using a **loosely-coupled, tuple-space-inspired architecture** for service composition.
+This system will be built as a **local-first DXOS application** using a **monolithic architecture** for Phase 1, with **manual data entry** as primary input method, following **constraint-first progression** to deliver value in days.
 
-#### Architectural pattern: Linda-like tuple space with DXOS
+**Architecture: Monolithic DXOS application (Phase 1)**
 
-To achieve loose coupling between system components (especially external service integrations like scraping and email), we adopt a **Linda-like tuple space pattern** using DXOS shared spaces:
+For Phase 1, we adopt a simple, single-process architecture:
 
-**Pattern overview**:
-- Multiple independent DXOS instances run concurrently, all accessing the same shared DXOS Space
-- Each instance provides specific capabilities (scraping, email notification, detection, UI)
-- Instances watch the Space for tuple-like data structures representing work requests (e.g., "scrape source X", "send email notification Y")
-- When an instance detects a request matching its capabilities, it **atomically grabs** the tuple, executes the function, stores results in the Space, and writes a completion tuple
-- This decouples components: the system requesting scraping doesn't need to know how scrapers work or manage their lifecycle
+**Core layers**:
+1. **Data persistence (DXOS)**: Stores coverage snapshots, claims, EOBs, provider bills, COBRA records, reconciliation state, evidence artifacts. Single DXOS Space for household data.
 
-**Example flow - Scraping**:
-1. Detection scheduler writes tuple: `{type: "SCRAPE_REQUEST", sourceId: "sana-benefits", timestamp: ...}`
-2. Scraping instance (running independently) detects this tuple and atomically claims it
-3. Scraper executes, extracts coverage data from Sana portal
-4. Scraper writes result tuple: `{type: "SCRAPE_COMPLETE", sourceId: "sana-benefits", snapshot: {...}, status: "success"}`
-5. Detection engine detects completion tuple, processes new snapshot
+2. **Data entry UI**: Manual input forms for:
+   - Provider bills (PDF upload + manual field extraction)
+   - EOBs (PDF upload + manual field extraction)
+   - Claim status (from insurer portal, manually transcribed)
+   - Coverage snapshots (from employer/insurer/COBRA portals, manually transcribed)
+   - COBRA payment attempts (evidence capture log)
 
-**Example flow - Email notification**:
-1. Detection engine generates alert, writes tuple: `{type: "NOTIFICATION_REQUEST", alertId: "123", channel: "email", ...}`
-2. Email instance detects tuple, atomically claims it
-3. Email sender composes and sends email
-4. Writes completion: `{type: "NOTIFICATION_COMPLETE", alertId: "123", status: "sent", timestamp: ...}`
+3. **Analysis logic**: Direct function calls (no tuple pattern) for:
+   - Bill-to-EOB reconciliation (manual matching UI)
+   - Claim status tracking (detect missing claims)
+   - Coverage state comparison (detect "terminated" discrepancies)
+   - COBRA payment path monitoring
+   - Evidence timeline construction
 
-**Benefits of this architecture**:
-- **Loose coupling**: Scraper development/maintenance is independent of detection logic
-- **Independent deployment**: Can run scraper instance on different schedule, machine, or not at all
-- **Testability**: Each capability instance can be tested in isolation
-- **Transparency**: Tuple history in DXOS provides full audit trail of system actions
-- **Resilience**: If scraper instance fails, request tuples remain in Space; retry logic is explicit
+4. **Display UI**: Dashboards per Phase 1 problem:
+   - Bill reconciliation view (provider bill vs EOB comparison)
+   - Claim tracking view (list of claims, highlight missing/denied)
+   - Coverage status view (current state per person, per source)
+   - COBRA payment tracking view (timeline of payment attempts, evidence)
 
-**Must review before implementation**: DXOS documentation on atomic operations, Space querying patterns, and multi-instance coordination.
+**Why monolithic for Phase 1?**
+- **Speed**: Can deliver working system in 2-5 days per problem
+- **Simplicity**: Easier to debug; fewer moving parts; direct function calls
+- **Sufficient**: Phase 1 problems don't require automation or background processing
+- **Refactorable**: Clean interfaces allow evolution to tuple pattern in Phase 2 if automation becomes valuable
 
----
+**Why manual data entry for Phase 1?**
+- **Fastest to build**: Forms and file upload can be implemented in hours
+- **Validates value**: Proves system helps before investing in automation
+- **Unblocks immediately**: Household can start reconciling bills, tracking claims, documenting COBRA issues today
+- **Defers complexity**: Scraping is fragile, takes weeks, and may not unblock current problems
 
-#### Layer descriptions
-
-**1. Data persistence layer (DXOS)**
-
-Stores institutional data snapshots, user configuration, detection history, evidence chains, and work request/completion tuples. All system state lives in DXOS Space(s).
-
-**Must review**: DXOS documentation on Spaces, Echo schema patterns, atomic operations, and data replication.
-
----
-
-**2. Integration layer (revised architecture)**
-
-The integration layer consists of **independent capability instances** that respond to work requests in the DXOS Space.
-
-**Scraper capability instances**:
-- Each institutional scraper (Sana, UnitedHealthcare, employer-specific portals) is an independent component
-- Scraper watches for `SCRAPE_REQUEST` tuples for its source type
-- Executes scraping (headless or headed mode), generates timestamped CoverageSnapshot
-- Writes snapshot to DXOS, writes `SCRAPE_COMPLETE` tuple
-
-**Scraper architecture requirements** (per Unknown #1):
-- **Independent execution**: Each scraper runs as standalone process/service
-- **TDD scaffolding**: Test scrapers against captured portal HTML/JSON snapshots
-- **Manual execution mode**: CLI/UI to trigger scraper manually and observe extraction
-- **Headed mode support**: Optional visible browser for user transparency
-- **Portal change detection**: If scraper fails or extracts unexpected structure, write `PORTAL_CHANGE_ALERT` tuple (treated like coverage discrepancy)
-
-**Email notification capability instance**:
-- Watches for `NOTIFICATION_REQUEST` tuples
-- Composes and sends email from local SMTP configuration
-- Writes `NOTIFICATION_COMPLETE` tuple with delivery status
-
-**Third-party component considerations**:
-- **For notification management**: Consider using existing libraries (e.g., Nodemailer for email, third-party notification services for push)
-  - *Constraint impact*: If using external notification service (e.g., Firebase Cloud Messaging), this introduces cloud dependency and may compromise "local-first data ownership" (Constraint #7) for notification metadata (but not core coverage data)
-  - *Trade-off*: Evaluate whether notification routing metadata constitutes sensitive data requiring local-first protection
-  - *Recommendation*: Start with local SMTP for email (fully local-first); if push notifications require cloud service, document as acceptable cloud dependency for non-sensitive operational data
-
-**General pattern for external service integration**:
-- Any integration with external services (scraping, email, future API calls) should follow this tuple-based pattern
-- Isolates external dependencies into independent capability instances
-- Maintains core system independence from external service availability
-
----
-
-**3. Detection engine**
-
-Compares snapshots across sources and over time using rule-based logic with confidence scoring. Produces alerts when discrepancies exceed threshold. Must be transparent and debuggable (no black boxes).
-
-**Third-party component considerations**:
-- **For rules engine**: Consider using existing rules engines (e.g., json-rules-engine, node-rules, or similar)
-  - *Constraint impact*: Third-party rules engines typically don't compromise local-first constraints (run locally), but must evaluate:
-    - **Transparency** (Constraint #2, #6): Can users understand rules? Can rules be exported/displayed in human-readable format?
-    - **Justified confidence** (Constraint #6): Does the engine support confidence scoring or only binary true/false?
-  - *Trade-off*: Existing rules engine may accelerate development but may require wrapper layer to expose rules for user visibility (per Unknown #4 requirement)
-  - *Recommendation*: Evaluate json-rules-engine or similar; if it supports human-readable rule export and can be extended with confidence scoring, adopt it; otherwise, build custom rule evaluator with transparency as first-class requirement
-
-Detection engine watches for `SCRAPE_COMPLETE` tuples, processes new snapshots, and writes `ALERT` tuples when discrepancies detected.
-
----
-
-**4. User interface layer (minimal viable approach)**
-
-DXOS-compatible UI (likely React-based given DXOS patterns) displaying **minimal set of information** with option to expand later.
-
-**Minimal viable UI components** (prioritize these):
-- **Current status view**: Show per-person, per-source status (green/yellow/red) with most recent snapshot timestamp
-- **Active alerts list**: Display unresolved alerts with confidence level and basic description
-- **Alert detail**: Show which rule triggered, confidence breakdown, affected sources, timestamp
-- **Evidence viewer**: Display snapshot comparison for user to share with institutions
-
-**Deferred to future expansion**:
-- Historical trend graphs (can start with simple timeline, defer interactive visualizations)
-- Advanced filtering and search across alerts
-- Customizable dashboards
-- PDF export (start with copy-paste text, defer styled PDF generation)
-
-**Design principle**: Start with minimum information needed to answer "Is my coverage okay?" and "What's wrong?" Everything else can be added progressively based on real usage feedback.
+**Must review before implementation**: DXOS documentation on Spaces, Echo schema patterns, data persistence, file storage (for PDFs).
 
 ---
 
 ### Why not alternative approaches
 
-**Cloud-first SaaS**: Would violate local-first learning goal and data ownership constraint. Rejected.
+**Automated scraping first**: Would delay resolving active problems by weeks. Constraint-first says solve active harm now, optimize later.
 
-**Mobile-native app**: DXOS compatibility unclear; would split effort between native mobile and DXOS patterns. Could be future work after DXOS learning is complete.
+**Tuple-space architecture**: Elegant for future automation but premature for manual workflows. Adds days to delivery with no Phase 1 benefit.
 
-**Browser extension only**: Insufficient for multi-source monitoring and notification; doesn't meet "no vigilance" constraint. Could be complementary data source later.
+**Cloud-first SaaS**: Violates local-first learning goal and data ownership constraint. Rejected.
 
-**Blockchain/Web3**: Overkill for single-user problem; doesn't address institutional data access; violates learning focus (would become crypto learning vs. GenAI + local-first learning).
+**Mobile-first**: DXOS compatibility unclear; desktop sufficient for initial household use. Could be Phase 3+.
+
+**Blockchain/distributed ledger**: Overkill; doesn't solve data access or reconciliation problems.
 
 ---
 
 ### Workstreams
 
-#### 1. DXOS foundation & local-first architecture
-Establish DXOS development environment, design data schema using Echo (including tuple structures for work requests), implement Space management for user and family member data, and establish patterns for local-first tuple-space architecture.
+#### Workstream 1: DXOS foundation & data schema (foundational)
+
+Establish DXOS development environment, design schema for coverage, claims, bills, EOBs, COBRA records, and evidence artifacts. Implement single-Space household data model.
 
 **Key artifacts to review before implementation**:
-- DXOS documentation: Getting Started, Echo data schema patterns, Space and Identity management
-- DXOS atomic operations and multi-instance coordination patterns
-- DXOS example applications (if available): examine data modeling patterns, UI integration, state management
-- Must review: DXOS notification/background task patterns (if they exist)
+- DXOS documentation: Getting Started, Echo schema patterns, Space and Identity management
+- DXOS file storage patterns (for PDF uploads)
+- DXOS query patterns (for reconciliation matching)
 
 **Coherent slices**:
-- Development environment setup and DXOS CLI familiarity
-- Core schema design (User, InsuranceSource, CoverageSnapshot, DiscrepancyAlert, plus tuple schemas: ScrapeRequest, ScrapeComplete, NotificationRequest, etc.)
-- Space initialization and family member model
+- Development environment setup
+- Core schema design (Person, CoverageSnapshot, Claim, EOB, ProviderBill, COBRARecord, EvidenceLog, ReconciliationMatch)
+- Space initialization for household
 - Basic CRUD operations on local data
-- Tuple pattern prototype (write request, read/claim, write completion)
+- PDF file upload and storage
 
 ---
 
-#### 2. Data ingestion & institutional source integration (scraper-first)
-Build independent scraper capability instances for institutional data sources, following architectural requirements from Unknown #1. Each scraper produces normalized, timestamped snapshots stored immutably in DXOS.
+#### Workstream 2: Bill reconciliation (Phase 1, Problem 1)
+
+Build UI to manually match provider bills with insurer EOBs, enabling household to determine which charges are valid and which require itemized bills.
 
 **Key patterns to establish**:
-- Scraper independence (each source as standalone component)
-- TDD scaffolding for scraper testing against captured portal data
-- Manual execution scaffold for scraper observation
-- Headed/headless browser automation modes
-- Portal change detection and alerting
-- Tuple-based work request pattern (ScrapeRequest → scraper execution → ScrapeComplete)
-- Snapshot versioning and immutability
-- Schema for institutional terminology mapping
+- Bill and EOB data entry (manual or PDF upload with field extraction)
+- Side-by-side comparison UI (bill charges vs EOB line items)
+- Manual matching workflow (user marks which EOB lines correspond to bill charges)
+- Reconciliation state tracking (matched, unmatched, pending itemized detail)
+- "What's blocking payment" summary view
 
 **Coherent slices**:
-- Scraper framework and tuple-based integration pattern
-- First scraper: Sana Benefits (or user's primary insurer)
-  - TDD test suite with captured portal HTML
-  - Manual execution CLI tool
-  - Headed mode support for user observation
-  - Portal change detection logic
-- Second scraper: Employer portal (or secondary institutional source)
-  - Reuse framework established with first scraper
-  - Document portal-specific authentication and structure
-- Snapshot storage and retrieval from DXOS
-- Scraper scheduling (writes ScrapeRequest tuples on defined intervals)
+- Provider bill entry form (date, provider, total amount, aggregated charges, PDF attachment)
+- EOB entry form (claim number, date of service, provider, service lines, patient responsibility, PDF attachment)
+- Side-by-side reconciliation view (bill on left, EOB on right, user draws connections)
+- Reconciliation state summary ("Bill A: $X matched, $Y unmatched, requires itemized detail")
+- Evidence export (PDF generation or copy-as-text for provider communication)
 
 ---
 
-#### 3. Discrepancy detection engine
-Implement rule-based consistency checking across sources and over time. Produce alerts when discrepancies meet confidence threshold. Maintain full audit trail of detection logic.
+#### Workstream 3: Claims tracking & denial detection (Phase 1, Problem 2 & 4)
 
-**Third-party component evaluation**:
-- Evaluate json-rules-engine or similar for rule evaluation
-- If adopted, implement wrapper for confidence scoring and user-visible rule export
-- If transparency requirements can't be met with third-party, build custom evaluator
+Build UI to track claim status, detect claims denied for "terminated coverage," and identify missing claims.
 
 **Key patterns to establish**:
-- Rule definition format (must be human-readable and user-visible per Unknown #4)
-- Confidence scoring based on data freshness, source agreement, historical patterns
-- Alert generation and priority assignment
-- Evidence artifact generation (what data led to this alert?)
-- Integration with tuple pattern (watches ScrapeComplete, writes Alert tuples)
+- Claim data entry (claim ID, date of service, provider, amount, status, denial reason)
+- Coverage snapshot entry (employer, insurer, COBRA - status per person per date)
+- Cross-reference logic (denied claim date vs coverage snapshot date → discrepancy detection)
+- Missing claim detection (expected service occurred but no claim in system)
+- Denial reason pattern analysis (flag "coverage" or "eligibility" reasons)
 
 **Coherent slices**:
-- Rules engine selection and integration (or custom rule evaluator implementation)
-- Core detection rules (cross-source consistency)
-- Confidence scoring algorithm
-- Alert generation and persistence
-- Evidence artifact generation (shareable with institutions)
-- Rules visibility UI (users can view active rules and understand logic)
+- Claim entry form (claim number, date of service, provider, billed amount, status, denial reason if applicable)
+- Coverage snapshot entry form (source, person, effective dates, status, screenshot/PDF evidence)
+- Claim list view (sortable by status, filterable by person/provider/date range)
+- Denial detection alert ("Claim X denied for coverage reason, but coverage snapshot shows active on date of service")
+- Missing claim detection ("Service on DATE at PROVIDER has no corresponding claim in system")
+- Evidence timeline (show coverage state at time of claim adjudication)
 
 ---
 
-#### 4. User interface & evidence presentation (minimal viable)
-Build DXOS-compatible UI showing minimal set of information to answer "Is coverage okay?" and "What's wrong?"
+#### Workstream 4: COBRA payment tracking (Phase 1, Problem 3)
+
+Build evidence capture tool for COBRA payment attempts, enabling household to document failed payment paths and coordinate resolution with administrator.
 
 **Key patterns to establish**:
-- Status dashboard (current state per person, per source) - minimal design
-- Alert presentation (clear, actionable, not alarming)
-- Evidence view (exportable as text, timestamped, understandable)
-- Settings for scraper configuration and notification preferences
-
-**Coherent slices** (prioritized for minimal viable):
-- Dashboard layout with status cards (per person, per source, color-coded)
-- Alert inbox (list view with confidence and timestamp)
-- Alert detail view (rule that triggered, confidence breakdown, affected sources)
-- Evidence artifact viewer (snapshot comparison in plain text or simple table)
-- Settings page (family members, institutional sources, scraper schedule, notification preferences)
-
-**Deferred slices** (expand later based on usage):
-- Historical trend visualization (graphs over time)
-- PDF export for evidence artifacts
-- Advanced filtering and search
-- Customizable notification rules
-
----
-
-#### 5. Notification & alerting system (email capability instance)
-Implement email notification capability as independent instance following tuple pattern. Meets "no vigilance" constraint.
-
-**Third-party component evaluation**:
-- Use Nodemailer or similar for email sending (local SMTP, no cloud dependency)
-- If push notifications pursued (stretch goal), evaluate constraint impact of Firebase Cloud Messaging or similar (introduces cloud dependency for notification routing metadata)
-
-**Key patterns to establish**:
-- Notification capability instance (watches NotificationRequest tuples)
-- Email composition from alert data
-- SMTP configuration and credential management
-- Notification history (NotificationComplete tuples)
-- User preferences for notification triggers and quiet hours
+- Evidence log entry (date, contact method, person contacted, outcome, notes, attachments)
+- COBRA period tracking (upcoming coverage periods, payment deadlines)
+- Payment path status (attempted, failed, alternate offered, resolved)
+- Escalation support (timeline view for case building)
 
 **Coherent slices**:
-- Notification capability instance framework
-- Email delivery using Nodemailer (or similar local SMTP library)
-- Email template (plain-language alert summary with link to app)
-- User notification preferences UI
-- Notification audit log (view past notifications)
-- (Stretch) Push notification capability instance (pending DXOS patterns and constraint evaluation)
+- COBRA period configuration (start date, end date, payment amount, deadline)
+- Evidence log form (timestamp, contact type, summary, detailed notes, attachments)
+- Payment attempt tracking ("Attempted payment via portal on DATE - failed")
+- Timeline view (chronological log of all payment attempts and responses)
+- Escalation summary ("X attempts since DATE, no working payment path confirmed")
 
 ---
 
-## Third-party components: constraint trade-offs
+#### Workstream 5: Minimal UI & evidence presentation
 
-**Philosophy**: Prefer existing third-party components where they fit, rather than building from scratch. However, evaluate constraint impacts before adoption.
+Build simple, accessible UI showing status per Phase 1 problem with plain-language explanations and evidence export.
 
-### Evaluation framework
+**Key patterns to establish**:
+- Problem-centric dashboard (one card per Phase 1 problem showing current state)
+- Evidence artifacts (exportable summaries for provider/insurer communication)
+- Plain-language explanations (no jargon; clear next actions)
 
-For each third-party component being considered, assess impact on constraints:
-
-1. **Local-first data ownership** (Constraint #7): Does it require sending data to cloud services?
-2. **Transparency** (Constraint #2, #9): Can users understand what it's doing?
-3. **Justified confidence** (Constraint #6): Does it support explainability?
-4. **Non-technical usability** (Constraint #5): Does it add complexity visible to users?
-
-### Specific component evaluations
-
-#### Rules engine (e.g., json-rules-engine)
-- **Constraint impact**: Low - runs locally, no data leaves system
-- **Transparency**: Must verify rules can be exported in human-readable format
-- **Recommendation**: **Adopt if transparency requirement met**; significantly accelerates detection engine development
-- **Mitigation**: Build wrapper layer for confidence scoring and user-visible rule display
-
-#### Notification management (e.g., Nodemailer for email)
-- **Constraint impact**: Low for email (local SMTP), Medium for push (cloud routing metadata)
-- **Transparency**: Email sending is transparent; push may introduce opacity
-- **Recommendation**: **Adopt Nodemailer for email** (no constraint violations); **evaluate push carefully** (document cloud dependency as acceptable for operational metadata if pursued)
-
-#### Web scraping frameworks (e.g., Puppeteer, Playwright)
-- **Constraint impact**: Low - runs locally, browser automation doesn't compromise data ownership
-- **Transparency**: Can support headed mode for user visibility
-- **Recommendation**: **Adopt Puppeteer or Playwright** (mature, well-tested, supports headed/headless modes, accelerates scraper development)
-
-#### UI component libraries (e.g., React, Material-UI, Chakra UI)
-- **Constraint impact**: None - purely local rendering
-- **Non-technical usability**: Can improve UX if used thoughtfully
-- **Recommendation**: **Adopt React-based UI library** compatible with DXOS patterns; prioritize accessibility and plain-language presentation
-
-### Constraint pivot considerations
-
-If a third-party component provides significant value but conflicts with constraints, document the trade-off and consider whether constraint should be relaxed:
-
-**Example**: If push notifications require cloud service (Firebase Cloud Messaging), document:
-- **Constraint affected**: #7 (local-first data ownership)
-- **Data leaving local system**: Notification routing metadata (device tokens, notification timestamps), NOT coverage data or personal health information
-- **Risk**: Cloud provider sees notification patterns (frequency, timing), not content
-- **Mitigation**: Encrypt notification content; cloud service only routes messages
-- **Pivot decision**: Is notification routing metadata acceptable cloud dependency given UX benefit?
+**Coherent slices**:
+- Dashboard layout (4 cards: Bill Reconciliation, Claims Tracking, COBRA Payment, Overall Status)
+- Problem status indicators (green = resolved, yellow = in progress, red = blocked)
+- Evidence export per problem (e.g., "Claim X: denied for coverage, but coverage was active - here's proof")
+- Settings (family members, institutional sources, manual data refresh prompts)
 
 ---
 
@@ -434,69 +400,70 @@ If a third-party component provides significant value but conflicts with constra
 
 ### Risks
 
-1. **DXOS maturity and capability gaps**
-   - *What could go wrong*: DXOS may lack necessary features (background tasks, atomic operations for tuple pattern, notifications, data export), causing architectural rework or forcing compromises on local-first constraints.
-   - *Mitigation*: Early spike (Epic 1, de-risking action #1) to validate DXOS capabilities, especially atomic operations needed for tuple pattern, before deep implementation. Document workarounds and gaps as learning artifacts.
-   - *Detection*: If DXOS spike takes >2 weeks or reveals blocking limitations for tuple pattern, escalate architectural decision (may need to simplify to single-instance architecture).
+1. **Manual data entry is too tedious; household abandons system**
+   - *What could go wrong*: Data entry takes >15 minutes per session; household stops using system before problems resolved
+   - *Mitigation*: Optimize forms for speed (sensible defaults, auto-fill where possible, PDF upload with manual extraction assistance). Measure time per entry; if >10 minutes, simplify.
+   - *Detection*: Track usage frequency. If entries stop before problems resolved, interview household to understand friction.
 
-2. **Scraper fragility and portal changes**
-   - *What could go wrong*: Institutional portals change structure frequently, breaking scrapers; anti-scraping protections block automation; 2FA requirements prevent unattended scraping.
-   - *Mitigation*:
-     - TDD structure with captured portal data allows rapid detection of breakage
-     - Portal change detection alerts user when scraper fails (treats as assurance problem)
-     - Independent scraper architecture isolates failures (one broken scraper doesn't break system)
-     - Manual execution scaffold allows user to diagnose and report issues
-     - Headed mode allows user to verify scraper behavior and maintain trust even when troubleshooting
-   - *Detection*: If scrapers break >1x per month per source, this is expected; mitigation is fast repair cycle. If scraping becomes impossible (anti-bot), fall back to manual input (document as learning outcome).
+2. **Provider bills cannot be reconciled without itemized detail**
+   - *What could go wrong*: Even with manual matching UI, aggregated charges vs detailed EOB lines don't map; payment decisions still blocked
+   - *Mitigation*: System explicitly flags "requires itemized bill" rather than forcing incorrect match. Produces evidence artifact: "Provider billed $X aggregated; EOB shows $Y detailed lines; cannot verify patient responsibility without itemization."
+   - *Detection*: If reconciliation view used but no payment decisions made, matching may be insufficient.
 
-3. **False positive alerts erode trust**
-   - *What could go wrong*: Detection rules trigger on benign differences (e.g., timing delays between systems), causing alert fatigue and user disengagement.
-   - *Mitigation*: Conservative confidence thresholds initially (prefer false negatives to false positives during learning phase). Implement alert feedback loop. Start with real family data for ground truth. Rules visibility helps users understand and trust logic.
-   - *Detection*: If >30% of alerts are false positives in first month of real use, tighten detection rules.
+3. **DXOS maturity gaps block Phase 1 delivery**
+   - *What could go wrong*: DXOS lacks features needed for PDF storage, data queries, or UI rendering, causing delays
+   - *Mitigation*: Early spike (Epic 1, de-risking action #1) validates DXOS for required features. If blocking gaps found, pivot to SQLite + local-first UI (still respects data ownership).
+   - *Detection*: If DXOS spike takes >2 days or reveals blocking limitations, architectural pivot required.
 
-4. **Non-technical usability failure**
-   - *What could go wrong*: UI or terminology is too technical; users don't understand what action to take when alert fires; system increases anxiety rather than confidence.
-   - *Mitigation*: User test with non-technical family members before considering "done." Plain language throughout. Include "what does this mean?" explainers. Validation criteria include comprehension check. Minimal UI approach reduces cognitive load.
-   - *Detection*: If test user cannot explain alert meaning or next action within 30 seconds, UI revision required.
+4. **Denied claims cannot be resolved through system visibility alone**
+   - *What could go wrong*: Household sees denied claims + evidence of active coverage, but insurer won't reprocess; external escalation required beyond system scope
+   - *Mitigation*: System provides evidence artifacts (coverage proof, denial details, timeline) for external escalation. Success = "household has tools to escalate," not "system auto-resolves."
+   - *Detection*: If reprocessing requests sent but claims remain denied, system's role is evidence provision, not resolution.
 
-5. **1-day detection window missed**
-   - *What could go wrong*: Scraper scheduling runs too infrequently, or processing lag causes alerts to fire >24 hours after actual discrepancy.
-   - *Mitigation*: Design for 6-hour scrape intervals (4x daily) to ensure 24-hour detection. Add explicit latency monitoring. Make scrape frequency configurable. Tuple pattern provides audit trail of request → execution → completion timing.
-   - *Detection*: If any real discrepancy takes >24 hours from occurrence to alert, this is a critical failure requiring immediate fix.
+5. **COBRA payment path issue is systemic, not data problem**
+   - *What could go wrong*: Evidence capture reveals COBRA administrator's system is broken; no amount of data visibility resolves payment path
+   - *Mitigation*: Evidence log supports escalation to employer/administrator with documented timeline. System success = "household has audit trail for escalation," not "payment path fixed."
+   - *Detection*: If payment attempts fail despite documented evidence, problem is institutional (out of system scope).
 
-6. **Local-first constraints make system unusable**
-   - *What could go wrong*: Requirement to run local DXOS node becomes friction point; users forget to run it; scraping fails because local client is offline.
-   - *Mitigation*: This is partially accepted as learning constraint. Document friction as learning artifact. Consider always-on deployment option (Raspberry Pi, NAS, always-on laptop) as workaround while maintaining local-first control. Tuple pattern's asynchronous nature helps: scrape requests queue when offline, execute when back online.
-   - *Detection*: If real-world usage shows <80% uptime, either improve always-on deployment or document as DXOS learning limitation.
+6. **Phase 1 problems get resolved externally before system delivers**
+   - *What could go wrong*: Insurer reprocesses claims, provider issues itemized bills, COBRA admin fixes payment, rendering system unnecessary
+   - *Mitigation*: This is a success outcome for household (problems resolved). System still validates value by capturing what would have been needed. Learning goals (DXOS, GenAI) still achieved.
+   - *Detection*: If external resolution occurs, document "what system would have shown" for retrospective validation.
 
-7. **Tuple pattern coordination complexity**
-   - *What could go wrong*: Multiple instances competing for same tuple cause race conditions; tuple cleanup becomes complex; debugging distributed system is harder than monolithic.
-   - *Mitigation*: DXOS atomic operations should prevent race conditions (validate in spike). Tuple history provides audit trail for debugging. Start with single instance of each capability type (one scraper instance per source, one email instance) to reduce coordination complexity. Document tuple lifecycle (request → claim → complete → archive).
-   - *Detection*: If tuple pattern causes bugs that take >1 day to diagnose, consider simplifying to monolithic architecture (acceptable trade-off against learning goal).
+7. **"Days not weeks" timeline is too aggressive**
+   - *What could go wrong*: Increments take 5+ days each; Phase 1 total timeline stretches to 3-4 weeks, delaying resolution
+   - *Mitigation*: Ruthlessly scope each increment to "smallest useful." If increment taking >3 days, cut features to accelerate. Imperfect delivery that helps is better than perfect delivery that's late.
+   - *Detection*: Daily check-in: "Did this move toward resolving a Phase 1 problem?" If not, pivot.
 
 ### Assumptions
 
-1. **Necessary information is accessible via scraping**: Assumes employer and insurer portals surface active/inactive status in scrapable form (HTML, JSON, or visible browser state).
-   - *Validation approach*: Early portal access spike (de-risking action #2) tests real scrapers against real portals.
+1. **Household can extract data from PDFs and portals**: Assumes ability to access insurer/provider/COBRA systems and manually transcribe or upload data.
+   - *Validation approach*: Test data entry UI with real PDFs and portal screenshots during Epic 1.
 
-2. **DXOS supports atomic operations for tuple pattern**: Assumes DXOS Echo can support atomic claim operations needed for Linda-like coordination.
-   - *Validation approach*: Epic 1 spike validates atomic operation support; if unavailable, simplify architecture.
+2. **Bill-to-EOB matching is possible with manual judgment**: Assumes household member can identify which EOB lines might correspond to aggregated bill charges, even if ambiguous.
+   - *Validation approach*: Build reconciliation UI prototype with real bills/EOBs, test with household member.
 
-3. **GenAI can accelerate end-to-end development**: Assumes GenAI tools (including this planning process) meaningfully reduce time and cognitive load vs. manual development.
-   - *Validation approach*: This is a meta-learning goal; tracked through reflection artifacts, not metrics.
+3. **DXOS is sufficiently mature for this scope**: Assumes DXOS can handle data persistence, file storage, queries, and UI rendering without blocking issues.
+   - *Validation approach*: Epic 1 spike validates DXOS capabilities before deep implementation.
 
-4. **Family scale is sufficient for learning**: Assumes 2-5 covered individuals is enough to validate data model and detection logic without needing multi-tenant architecture.
-   - *Validation approach*: Real usage with actual family for 3+ months.
+4. **Manual workflows are acceptable for Phase 1**: Assumes household willing to manually enter data for 2-4 weeks to resolve active problems before automation is prioritized.
+   - *Validation approach*: Set expectation upfront: "manual entry for Phase 1, automation in Phase 2 if needed."
 
-5. **Headless scraping is sufficient, headed mode is transparency feature**: Assumes scrapers can operate unattended (headless) for routine monitoring; headed mode is for user confidence and debugging, not required for every scrape.
-   - *Validation approach*: Build headless first, add headed mode as transparency feature; validate with real usage.
+5. **Evidence artifacts support external resolution**: Assumes that providing household with clear evidence (coverage proof, denial details, reconciliation gaps, payment timeline) enables them to escalate issues with institutions.
+   - *Validation approach*: Test evidence export (PDF or text) with real data; household reviews for "would this help in a phone call with insurer?"
 
 ---
 
 ## Detail the work: Dependencies & sequencing
 
-### Epic 1: DXOS foundation & tuple-space architecture
+### Phase 1 — Resolve Active Failures (Epic 1-5)
+
+---
+
+### Epic 1: DXOS foundation & minimal data schema
 **Dependencies**: None (foundational work)
+
+**Purpose**: Establish DXOS development environment and validate it can support Phase 1 requirements (data persistence, file storage, queries, UI rendering). Design minimal schema for Phase 1 entities.
 
 **Tasks**:
 
@@ -506,630 +473,458 @@ If a third-party component provides significant value but conflicts with constra
    - Verify local node can start and persist data
    - Document setup steps for reproducibility
 
-2. **DXOS capability spike (expanded)**
-   - Survey DXOS documentation for: data schemas (Echo), Space management, Identity, **atomic operations** (critical for tuple pattern), UI integration patterns, background tasks/scheduling (if supported), notification mechanisms
-   - Build proof-of-concept: create Space, define simple schema, persist data, retrieve data, render in UI
-   - **Test tuple pattern**: Write request tuple, have second process atomically claim it, write completion tuple, verify no race conditions
-   - Document findings: what's supported, what's missing, what's unclear (especially atomic operation support)
-   - Decision gate: Is DXOS viable for this project? Does it support tuple pattern?
+2. **DXOS capability spike**
+   - Survey DXOS documentation: Echo schema, Space management, file storage (PDFs), UI integration, data queries
+   - Build proof-of-concept: create Space, define simple schema (Person, Claim), persist data, store PDF file, retrieve and display
+   - Test query patterns (e.g., "find all claims for person X with status=denied")
+   - Document findings: what's supported, what's missing, what's unclear
+   - **Decision gate**: Is DXOS viable for Phase 1? If blocking gaps, pivot to SQLite + local-first UI.
 
-3. **Core schema design (including tuple schemas)**
-   - Design Echo schema for core entities: User (family members), InsuranceSource (employer, insurer, COBRA), CoverageSnapshot (timestamped status records), DiscrepancyAlert (detected issues), EvidenceArtifact (supporting data for alerts)
-   - Design tuple schemas: ScrapeRequest, ScrapeComplete, NotificationRequest, NotificationComplete, PortalChangeAlert
-   - Define relationships: User has many CoverageSnapshots per InsuranceSource; tuples reference entities by ID
+3. **Minimal schema design (Phase 1 scope only)**
+   - Design Echo schema for:
+     - **Person** (household member)
+     - **CoverageSnapshot** (source, person, effective dates, status, evidence file)
+     - **Claim** (claim ID, person, date of service, provider, amount, status, denial reason, notes)
+     - **EOB** (claim ref, service lines, amounts, patient responsibility, PDF file)
+     - **ProviderBill** (provider, date, total amount, line items/aggregated charges, PDF file)
+     - **ReconciliationMatch** (bill line ↔ EOB line mapping, match confidence, notes)
+     - **COBRARecord** (coverage period, payment deadline, payment attempts, status)
+     - **EvidenceLog** (timestamp, problem ref, log type, summary, details, attachments)
    - Implement schemas in DXOS Echo format
    - Validate with test data
 
-4. **Space and family member model**
-   - Implement Space initialization for primary user
-   - Design family member data structure (hierarchical - per Unknown #3)
-   - Implement CRUD operations for family members
-   - Test: Add/edit/remove family member records
+4. **Space initialization for household**
+   - Implement Space creation for single household
+   - Add household members (Person entities)
+   - Implement basic CRUD operations (create, read, update, delete for all entity types)
+   - Test: Add person, add claim, retrieve claims for person
 
-5. **Basic UI scaffolding (minimal)**
+5. **Minimal UI scaffolding**
    - Set up React (or DXOS-recommended UI framework)
    - Implement DXOS data binding to UI components
-   - Create minimal navigation structure (Dashboard, Alerts, Settings)
+   - Create minimal navigation: Dashboard, Bills, Claims, COBRA, Settings
    - Verify data flow: DXOS → UI rendering
 
-6. **Tuple pattern prototype**
-   - Implement utility functions: writeTuple, claimTuple (atomic), readCompletedTuples
-   - Build simple proof-of-concept: one process writes work request, another claims and completes
-   - Verify: tuples are claimed atomically (no double-processing), completion tuples are queryable
-   - Document tuple lifecycle and cleanup strategy
-
 **Testing approach**:
-- **Unit tests**: Schema validation, CRUD operations, tuple lifecycle functions
-- **Integration tests**: DXOS data persistence and retrieval across sessions, tuple pattern with multiple processes
-- **Manual testing**: Can create Space, add family member, see data persist after restart; two processes can coordinate via tuples
+- **Unit tests**: Schema validation, CRUD operations
+- **Integration tests**: DXOS data persistence across sessions, file storage and retrieval
+- **Manual testing**: Can create Space, add person, add claim with PDF, retrieve and display
 
 **Validation criteria**:
-- DXOS development environment is operational and documented
-- Core schemas (entities + tuples) are implemented and can store/retrieve test data
-- Basic UI can render DXOS data for at least one family member
-- Tuple pattern is validated: atomic claim works, completion tuples are queryable, no race conditions observed
-- Architecture decision on family member model is documented (hierarchical)
-- DXOS capability gaps (if any) are documented as constraints for later epics
-- If tuple pattern is not viable, simplified architecture approach is documented
+- DXOS development environment operational and documented
+- Phase 1 schemas implemented and can store/retrieve test data with PDF attachments
+- Basic UI can render DXOS data for household members
+- DXOS capability gaps (if any) documented; pivot decision made if blocking
+- Time to complete: ≤3 days (if >3 days, DXOS may be too immature; consider pivot)
 
 ---
 
-### Epic 2: Scraper capability instances & institutional source integration
-**Dependencies**: Epic 1 (requires schema, tuple pattern, and DXOS foundation)
+### Epic 2: Bill reconciliation tool (Phase 1, Problem 1)
+**Dependencies**: Epic 1 (requires DXOS foundation and schema)
+
+**Purpose**: Enable household to reconcile provider bills with EOBs, identify unmatched charges, and determine which bills can be paid vs which require itemized detail.
 
 **Tasks**:
 
-1. **Scraper framework design**
-   - Define scraper interface: responds to ScrapeRequest tuple, writes ScrapeComplete tuple
-   - Design scraper base class/module with common functionality:
-     - Tuple watching and atomic claiming
-     - Headless/headed mode support
-     - Portal change detection (structure validation)
-     - Error handling and retry logic
-     - Snapshot generation
-   - Select browser automation library: Puppeteer or Playwright (evaluate both)
-   - Document scraper architecture and independence requirements
+1. **Provider bill entry form**
+   - Build form: provider name, bill date, total amount, aggregated line items (description + amount), notes
+   - PDF upload: attach provider bill PDF
+   - Store ProviderBill entity in DXOS with file reference
+   - Test: Enter real provider bill from hospitalization, verify storage
 
-2. **TDD scaffolding for scrapers**
-   - Build test framework: load captured portal HTML/JSON, run scraper extraction logic, validate output
-   - Create fixture storage: directory structure for portal snapshots (versioned by date)
-   - Implement portal snapshot capture tool: manually save portal HTML for testing
-   - Write example test: scraper extracts correct fields from captured Sana Benefits portal HTML
-   - Document TDD workflow: capture portal → write test → implement scraper → validate
+2. **EOB entry form**
+   - Build form: claim number, date of service, provider, detailed service lines (procedure, amount billed, amount allowed, amount paid, patient responsibility), notes
+   - PDF upload: attach EOB PDF
+   - Link to Claim entity if exists (optional for Phase 1)
+   - Store EOB entity in DXOS with file reference
+   - Test: Enter real EOB, verify storage
 
-3. **Manual scraper execution scaffold**
-   - Build CLI tool: `scraper-run --source=sana --mode=headed --observe`
-   - Features:
-     - Triggers single scraper execution (not via tuple, direct invocation)
-     - Headed mode shows browser window (user watches automation)
-     - Logs extraction steps (navigating to page X, extracting field Y)
-     - Displays extracted data for user verification
-   - Test: Run tool against real portal, verify user can observe and understand process
+3. **Bill list view**
+   - Display all provider bills (provider, date, total amount, reconciliation status: unreconciled/partial/complete)
+   - Click bill → open reconciliation view
+   - Test: Display 3 provider bills from real data
 
-4. **First scraper: Sana Benefits (or primary insurer)**
-   - Implement Sana scraper:
-     - Authentication flow (username/password, handle 2FA if present)
-     - Navigate to coverage overview page
-     - Extract: covered individuals, status per person, effective dates, plan details
-     - Generate CoverageSnapshot with extracted data
-     - Detect portal changes: validate expected DOM structure, flag if missing
-   - Write TDD test suite with captured Sana HTML fixtures
-   - Test with manual execution scaffold (headed mode)
-   - Integrate with tuple pattern: watches ScrapeRequest{sourceId: "sana"}, writes ScrapeComplete
-   - Document: authentication requirements, extraction logic, known fragilities
+4. **Reconciliation view (side-by-side comparison)**
+   - Left panel: Provider bill (aggregated charges)
+   - Right panel: Available EOBs (detailed service lines)
+   - User workflow:
+     - Select bill charge (left) and EOB service line (right)
+     - Click "Match" → creates ReconciliationMatch entity
+     - Mark bill charge as "Requires Itemized Detail" if no match possible
+   - Show totals: Bill total, Matched amount, Unmatched amount, EOB patient responsibility
+   - Test: Match real bill charges to real EOB lines, verify match persistence
 
-5. **Second scraper: Employer portal (or secondary institutional source)**
-   - Implement employer portal scraper (reuse framework from Sana scraper)
-   - Adapt to employer-specific portal structure
-   - Write TDD test suite with employer portal fixtures
-   - Test with manual execution scaffold
-   - Integrate with tuple pattern
-   - Document: authentication requirements, extraction logic
+5. **Reconciliation status summary**
+   - For each bill, show:
+     - Total billed amount
+     - Amount matched to EOBs (with confidence/notes)
+     - Amount unmatched (requires itemized detail or further investigation)
+     - Patient responsibility according to matched EOBs
+     - Next action: "Can pay $X" or "Request itemized bill for $Y"
+   - Test: View summary for 3 real bills, verify accuracy
 
-6. **Institutional source configuration UI**
-   - Create UI for defining InsuranceSource records
-   - Fields: source name, source type, scraper type (sana, employer, etc.), credentials (encrypted), URL, scrape schedule
-   - Implement source CRUD operations
-   - Test: Add Sana source with credentials, add employer source
-
-7. **Scrape scheduler**
-   - Implement scheduling logic: every 6 hours (configurable), write ScrapeRequest tuple for each configured source
-   - Can be simple cron-like scheduler or DXOS background task if supported
-   - Test: Scheduler writes ScrapeRequest tuples at correct intervals
-   - Verify: Scraper instances pick up requests and execute
-
-8. **Portal change detection and alerting**
-   - When scraper detects portal structure change (extraction fails, unexpected DOM), write PortalChangeAlert tuple
-   - UI displays portal change alerts like coverage discrepancy alerts
-   - Alert includes: source name, what failed, last successful scrape, suggested action ("Portal structure changed, scraper needs update")
-   - Test: Manually break scraper test fixture (remove expected DOM element), verify alert generated
-
-9. **Snapshot history and retrieval**
-   - Implement query: get all snapshots for source X
-   - Implement query: get most recent snapshot per source
-   - Implement UI: view snapshot history timeline (minimal - simple list with timestamps)
-   - Test: Run scrapers multiple times, verify snapshot history displays
+6. **Evidence export (plain text summary)**
+   - Generate exportable summary for provider communication:
+     - "Bill from [Provider] on [Date] for $[Amount]"
+     - "Matched charges: [list with EOB references]"
+     - "Unmatched charges: [list]"
+     - "Action required: Itemized bill needed for charges X, Y, Z"
+   - Copy-as-text button (PDF export deferred)
+   - Test: Generate summary for real bill, household reviews for usefulness
 
 **Testing approach**:
-- **Unit tests**: Scraper extraction logic with TDD fixtures, tuple integration, snapshot generation
-- **Integration tests**: End-to-end scraping flow (ScrapeRequest → scraper execution → snapshot stored → ScrapeComplete tuple)
-- **Manual testing**: Use manual execution scaffold with headed mode on real portals, verify extraction correctness
-- **Portal change tests**: Modify fixtures to simulate portal changes, verify detection and alerting
+- **Unit tests**: Form validation, CRUD operations for ProviderBill/EOB/ReconciliationMatch
+- **Integration tests**: End-to-end flow (enter bill → enter EOB → match → view summary)
+- **Usability test**: Household member uses reconciliation view with real bills/EOBs, completes matching in <15 minutes
 
 **Validation criteria**:
-- Scraper framework supports headless/headed modes, TDD testing, and tuple-based integration
-- At least two institutional scrapers (Sana/insurer, employer) are implemented and working
-- TDD test suites exist for each scraper with captured portal fixtures
-- Manual execution scaffold allows user to observe scraper in headed mode
-- Scrape scheduler writes ScrapeRequest tuples on defined intervals
-- Scrapers respond to tuples, execute, and write ScrapeComplete tuples
-- Portal change detection generates alerts when scraper fails
-- Snapshots are stored immutably with timestamps and queryable
-- User can configure institutional sources (including credentials) via UI
+- Household can enter 3 real provider bills and corresponding EOBs
+- Household can match bill charges to EOB lines (or mark "requires itemized detail")
+- Reconciliation summary clearly shows what can be paid vs what's blocked
+- Evidence export provides useful text for provider communication
+- **Problem resolution**: Household can make payment decisions for at least 1 provider bill
 
 ---
 
-### Epic 3: Discrepancy detection engine
-**Dependencies**: Epic 2 (requires snapshot data from scrapers)
+### Epic 3: Claims tracking & denial detection (Phase 1, Problems 2 & 4)
+**Dependencies**: Epic 1 (requires DXOS foundation); partially overlaps Epic 2 (can start after Epic 1)
+
+**Purpose**: Track claim status, detect claims denied for "terminated coverage" despite active coverage evidence, and identify missing claims.
 
 **Tasks**:
 
-1. **Rules engine evaluation and selection**
-   - Evaluate json-rules-engine: can it export rules in human-readable format? Can it be extended with confidence scoring?
-   - Evaluate alternatives if json-rules-engine doesn't meet transparency requirements
-   - Decision: adopt third-party rules engine OR build custom evaluator
-   - If adopting third-party: implement wrapper for confidence scoring and user-visible rule export
-   - Document decision and rationale
+1. **Claim entry form**
+   - Build form: claim number, person, date of service, provider, billed amount, claim status (submitted/pending/paid/denied), denial reason (if denied), notes
+   - Optional: link to EOB entity if exists
+   - Store Claim entity in DXOS
+   - Test: Enter 5 real claims (mix of paid, pending, denied)
 
-2. **Detection rule definition format**
-   - Design human-readable rule syntax
-     - If using json-rules-engine: use its JSON format, document how to translate to plain language
-     - If custom: design format like "IF employer.status = 'active' AND insurer.status = 'inactive' THEN alert with confidence based on data freshness"
-   - Implement rule parser/evaluator (or wrapper around third-party engine)
-   - Create initial rule set for cross-source consistency
-   - Document rule logic for transparency (must be auditable by users)
+2. **Coverage snapshot entry form**
+   - Build form: source (employer/insurer/COBRA), person, effective start date, effective end date, coverage status (active/inactive/pending), notes
+   - Screenshot or PDF upload: evidence from portal
+   - Store CoverageSnapshot entity in DXOS with file reference
+   - Test: Enter coverage snapshots for 2 family members across 3 sources
 
-3. **Core consistency rules**
-   - Rule: Cross-source status mismatch (employer says active, insurer says inactive, or vice versa)
-   - Rule: Coverage lapse detected (status changed from active to inactive without user action)
-   - Rule: Dependent coverage mismatch (employer shows N dependents, insurer shows M dependents, N ≠ M)
-   - Rule: Effective date inconsistency (employer and insurer report different effective dates)
-   - Rule: Payment status discrepancy (if COBRA: payment recorded but coverage shows inactive)
-   - Test each rule with synthetic snapshot data
+3. **Claim list view**
+   - Display all claims: claim number, person, date of service, provider, amount, status, denial reason
+   - Sortable by date, person, status
+   - Filterable: show only denied claims, show only missing claims
+   - Click claim → claim detail view
+   - Test: Display 10 claims with filtering and sorting
 
-4. **Confidence scoring algorithm**
-   - Implement scoring based on:
-     - Data freshness (recent snapshot = higher confidence)
-     - Source agreement (2+ sources agree = higher confidence)
-     - Historical stability (consistent over time = higher confidence)
-     - Anomaly significance (large discrepancy = higher confidence than small)
-   - Define confidence threshold for alert generation (e.g., >70% confidence triggers alert)
-   - Test: Vary snapshot timestamps and source agreement, verify confidence scores differentiate scenarios
+4. **Denial detection logic**
+   - For each denied claim:
+     - Check denial reason for keywords: "coverage", "eligibility", "terminated", "inactive"
+     - Query CoverageSnapshot entities for same person on date of service
+     - If coverage snapshot shows "active" but claim denied for coverage reason → flag discrepancy
+   - Display alert: "Claim X denied for coverage on [date], but coverage snapshot shows active"
+   - Test: Enter denied claim (coverage reason) + active coverage snapshot, verify discrepancy flagged
 
-5. **Alert generation and persistence**
-   - Detection engine watches for ScrapeComplete tuples (new snapshots available)
-   - When rule fires above confidence threshold, generate DiscrepancyAlert
-   - Alert fields: trigger rule, confidence score, affected person, affected sources, timestamp, status (new/acknowledged/resolved)
-   - Store alert in DXOS (as regular entity, not tuple)
-   - Test: Trigger detection with discrepant snapshots, verify alert created with correct confidence
+5. **Missing claim detection (manual prompt)**
+   - User workflow: "Did service occur on [date] that should have a claim?"
+   - If yes, mark as "Expected claim - missing from system"
+   - Track expected claims (date of service, provider, estimated amount, notes)
+   - List view: show expected claims not found in insurer portal
+   - Test: Enter expected service, verify it appears in "missing claims" list
 
-6. **Evidence artifact generation**
-   - For each alert, bundle supporting evidence:
-     - Snapshot data from each source (affected fields)
-     - Confidence breakdown (why this confidence score?)
-     - Rule that triggered (plain-language explanation)
-     - Timeline (when did discrepancy first appear?)
-   - Store as EvidenceArtifact linked to alert
-   - Test: Generate alert, verify evidence artifact contains necessary data for user to share with HR/insurer
+6. **Claim detail view & evidence timeline**
+   - Show claim details (all fields)
+   - Show related coverage snapshots at time of service (from all sources)
+   - Show discrepancy if coverage-related denial + active coverage
+   - Evidence export: "Claim [ID] denied on [date] with reason '[text]'. Coverage snapshot from [source] shows active coverage on [DOS]. Reprocessing requested."
+   - Test: View denied claim detail, verify evidence is clear and actionable
 
-7. **Detection scheduling**
-   - Detection engine runs after each ScrapeComplete tuple processed
-   - Can also run on schedule (every 6 hours) to catch any missed tuples
-   - Log detection runs and results
-   - Test: Run detection multiple times with same snapshots, verify alerts don't duplicate
-
-8. **Alert resolution workflow**
-   - User action: acknowledge alert (seen but not resolved)
-   - User action: mark resolved (institutional issue fixed)
-   - Auto-resolution: If subsequent snapshots show consistency (discrepancy cleared), suggest alert is resolved (user confirms)
-   - Test: Mark alert resolved, verify status updates; inject consistent snapshots after discrepancy, verify auto-resolution suggestion
-
-9. **Rules visibility UI (per Unknown #4)**
-   - Settings page: "View Detection Rules"
-   - Display active rules in plain language
-     - Example: "Alert if employer shows coverage active but insurer shows inactive (confidence threshold: 70%)"
-   - Per-alert: show which rule triggered and why (link from alert detail to rule explanation)
-   - Test: User can view rules, understand logic, and trace alert back to triggering rule
+7. **Coverage status dashboard**
+   - For each person, show current coverage status per source (employer, insurer, COBRA)
+   - Highlight discrepancies across sources (e.g., employer shows active, insurer shows terminated)
+   - Click person → coverage history (list of snapshots over time)
+   - Test: Display coverage for 2 people, verify discrepancies highlighted
 
 **Testing approach**:
-- **Unit tests**: Individual detection rules, confidence scoring, alert generation, evidence artifact creation
-- **Integration tests**: End-to-end detection (snapshots → rule evaluation → alert creation → evidence generation)
-- **Scenario tests**: Create specific snapshot sequences (e.g., active→inactive→active) and verify correct alerts with correct confidence
-- **Rules visibility test**: User can explain why alert fired based on rules UI
+- **Unit tests**: Claim CRUD, CoverageSnapshot CRUD, denial detection logic
+- **Integration tests**: Enter claim + coverage → detect discrepancy → generate evidence
+- **Scenario tests**:
+  - Denied claim (coverage reason) + active coverage → discrepancy detected
+  - Denied claim (other reason) + active coverage → no false alarm
+  - Expected service + no claim in system → missing claim detected
 
 **Validation criteria**:
-- Detection rules are documented in human-readable format and visible to users
-- Core consistency rules (cross-source, lapse, dependent mismatch, dates, payment) are implemented and tested
-- Confidence scoring produces differentiated scores based on data quality factors
-- Alerts are generated and persisted when confidence exceeds threshold
-- Evidence artifacts contain sufficient data to support institutional follow-up (plain language, timestamps, source comparison)
-- Detection runs after each scrape completion (real-time detection)
-- False positive rate on test scenarios is <20%
-- Users can view active detection rules and understand logic via UI
+- Household can enter 10 real claims with current status
+- Household can enter coverage snapshots for family members (employer, insurer, COBRA)
+- System detects and flags claims denied for coverage reasons when coverage snapshots show active
+- Missing claims can be tracked (expected service not found in insurer system)
+- Evidence export provides clear proof for insurer reprocessing request
+- **Problem resolution**: Household has evidence to request reprocessing for at least 2 denied claims
 
 ---
 
-### Epic 4: User interface & evidence presentation (minimal viable)
-**Dependencies**: Epic 3 (requires alerts and evidence artifacts)
+### Epic 4: COBRA payment tracking & evidence log (Phase 1, Problem 3)
+**Dependencies**: Epic 1 (requires DXOS foundation); can run parallel to Epic 2/3
+
+**Purpose**: Track COBRA payment attempts, document failed payment paths, and build evidence timeline for escalation to employer/administrator.
 
 **Tasks**:
 
-1. **Dashboard layout and status cards (minimal)**
-   - Design minimal dashboard: one status card per family member
-   - Status card shows:
-     - Family member name
-     - Overall status: green (all sources consistent), yellow (low-confidence discrepancy), red (high-confidence discrepancy)
-     - Most recent snapshot timestamp per source (Employer: checked 2 hours ago, Insurer: checked 3 hours ago)
-   - Click card → expand to show per-source status
-   - Test: Display dashboard with test data for 3 family members
+1. **COBRA coverage period configuration**
+   - Build form: coverage period (start date, end date), monthly premium amount, payment deadline
+   - Store COBRARecord entity in DXOS
+   - Test: Enter upcoming COBRA period (e.g., February 2026, $X premium, due Jan 31)
 
-2. **Alert inbox (minimal)**
-   - Alerts page: list all unresolved alerts
-   - Sort by confidence score (highest first)
-   - Alert card shows: affected person, one-line summary, confidence %, timestamp
-   - Click alert → navigate to detail view
-   - Test: Display 5 test alerts, verify sorting and navigation
+2. **Payment attempt log entry form**
+   - Build form: timestamp, payment method attempted (portal/mail/phone), amount, outcome (success/failed/pending), error details, notes
+   - Attachment upload: screenshots of errors, confirmation emails, etc.
+   - Link to COBRARecord (which period this attempt was for)
+   - Store as EvidenceLog entity in DXOS with attachments
+   - Test: Log 3 real payment attempts with different outcomes
 
-3. **Alert detail view**
-   - Show full alert details:
-     - Affected family member
-     - Which sources have discrepancy
-     - Plain-language explanation: "Employer reported coverage active on [date], but insurer reported coverage inactive on [date]"
-     - Confidence score with breakdown (why this score?)
-     - Link to rule that triggered (links to rules visibility UI)
-   - Action buttons: "Acknowledge" (dismiss from inbox but keep record), "Mark Resolved" (discrepancy fixed)
-   - Link to evidence artifact view
-   - Test: Open alert, verify all data displays correctly, click actions and verify state changes
+3. **Contact log entry form**
+   - Build form: timestamp, contact method (phone/email/portal message), person/department contacted, summary, detailed notes, response received
+   - Attachment upload: email screenshots, case numbers, etc.
+   - Link to COBRARecord
+   - Store as EvidenceLog entity
+   - Test: Log 2 real contact attempts with administrator
 
-4. **Evidence artifact viewer (minimal)**
-   - Display snapshot comparison in simple format:
-     - Table with columns: Source, Status, Effective Date, Dependents, Timestamp
-     - Row per source involved in discrepancy
-     - Highlight discrepant fields (different background color)
-   - Plain-language summary at top: "These sources disagree about coverage status as of [date]"
-   - "Copy as Text" button (copies formatted text for email/ticket)
-   - Test: View evidence for alert, verify comprehensibility, test copy function
+4. **COBRA timeline view**
+   - Chronological display of all payment attempts and contact logs for a coverage period
+   - Show: date, event type (payment attempt/contact), summary, outcome
+   - Click event → full details and attachments
+   - Visual timeline (can be simple list with timestamps initially)
+   - Test: Display timeline for February COBRA period with 5 logged events
 
-5. **Settings and configuration UI (minimal)**
-   - Family members: list, add, edit, remove
-   - Institutional sources: list, add (name, type, credentials), edit, remove
-   - Scraper settings: schedule frequency (every 6 hours default, configurable)
-   - Notification settings: email address, enable/disable, confidence threshold for notification
-   - Test: Change settings, verify they persist and affect system behavior
+5. **COBRA status summary**
+   - For each coverage period, show:
+     - Payment deadline
+     - Payment status (paid/pending/failed/no working path)
+     - Number of payment attempts
+     - Number of contacts with administrator
+     - Days until deadline (if unpaid)
+     - Next action: "Escalate to employer" / "Retry payment" / "Resolved"
+   - Test: View status for upcoming period, verify urgency is clear
 
-6. **Simple timeline view (deferred: historical graphs)**
-   - For each family member + source: show list of snapshots (timestamp, status)
-   - Purpose: help user identify when discrepancy began ("It was consistent until 3 days ago")
-   - Simple list format (not interactive graph yet)
-   - Test: Display 30 days of snapshot data in list, verify chronological order
+6. **Escalation evidence export**
+   - Generate summary for employer/administrator escalation:
+     - "COBRA coverage for [period] due [date]"
+     - "Payment attempts: [count] attempts since [first attempt date], all failed"
+     - "Administrator contacts: [count] attempts, no resolution"
+     - "Evidence attached: [list of screenshots/emails]"
+     - "Action required: Immediate resolution or alternate payment path"
+   - Copy-as-text (PDF export deferred)
+   - Test: Generate escalation summary, household reviews for completeness
 
 **Testing approach**:
-- **Unit tests**: Component rendering with mock data
-- **Integration tests**: UI interactions (click alert → see detail → mark resolved → alert disappears from inbox)
-- **Usability tests**: Non-technical family member can understand dashboard and alerts without explanation
+- **Unit tests**: COBRARecord CRUD, EvidenceLog CRUD, timeline generation
+- **Integration tests**: End-to-end flow (configure period → log payment attempts → view timeline → export evidence)
+- **Manual test**: Household logs real payment attempts and contacts, reviews timeline for accuracy
 
 **Validation criteria**:
-- Dashboard clearly shows current coverage status per person with minimal cognitive load
-- Alerts are sorted by priority (confidence score) and easy to navigate
-- Alert detail view contains sufficient information to understand the discrepancy in plain language
-- Evidence viewer presents comparison in format suitable for sharing with institutions (copy as text works)
-- Users can configure family members, sources, and notification preferences
-- Non-technical user can explain what an alert means and what action to take (validated through user test)
-- Deferred features (graphs, PDF export) are documented for future expansion
+- Household can configure upcoming COBRA coverage period with deadline
+- Household can log payment attempts (≥3 real attempts)
+- Household can log contacts with administrator (≥2 real contacts)
+- Timeline view shows chronological evidence of payment path failure
+- Escalation evidence export provides clear case for employer/administrator resolution
+- **Problem resolution**: Household has documented evidence for external escalation (even if payment path not fixed by system)
 
 ---
 
-### Epic 5: Notification capability instance (email)
-**Dependencies**: Epic 3 (requires alert generation), Epic 4 (requires evidence presentation for notification content)
+### Epic 5: Minimal dashboard & problem status overview
+**Dependencies**: Epic 2, 3, 4 (requires problem-specific tools built)
+
+**Purpose**: Provide household with simple, at-a-glance view of Phase 1 problem status and next actions.
 
 **Tasks**:
 
-1. **Notification capability instance framework**
-   - Design notification instance: watches NotificationRequest tuples, atomically claims, executes, writes NotificationComplete
-   - Implement tuple watching logic
-   - Implement notification trigger logic: when alert generated with confidence >threshold, write NotificationRequest tuple
-   - Test: Generate alert, verify NotificationRequest tuple written
+1. **Dashboard layout (problem-centric)**
+   - Create dashboard with 4 cards, one per Phase 1 problem:
+     - **Card 1**: Bill Reconciliation Status
+     - **Card 2**: Claims Tracking Status
+     - **Card 3**: COBRA Payment Status
+     - **Card 4**: Overall Household Status
+   - Each card shows: status indicator (green/yellow/red), summary text, next action
+   - Click card → navigate to detailed tool (Epic 2/3/4)
+   - Test: Display dashboard with real data
 
-2. **Email delivery using Nodemailer**
-   - Install and configure Nodemailer (third-party library for email)
-   - Implement SMTP configuration: user provides email credentials in settings (stored encrypted in DXOS)
-   - Notification instance reads NotificationRequest, composes email, sends via SMTP
-   - Email template:
-     - Subject: "Insurance Coverage Alert: [Affected Person]"
-     - Body: Plain-language summary (affected person, source discrepancy, confidence level, timestamp)
-     - Link to open app and view alert detail
-   - Test: Trigger alert, verify email received with correct content
+2. **Bill Reconciliation status card**
+   - Show: number of bills (total, reconciled, pending)
+   - Show: total unmatched charges requiring itemized detail
+   - Next action: "Review 2 unreconciled bills" or "All bills reconciled"
+   - Status: green if all reconciled, yellow if pending, red if blocked >7 days
+   - Test: Verify card reflects Epic 2 data accurately
 
-3. **Notification trigger logic (expanded)**
-   - Trigger email for:
-     - High-confidence coverage discrepancy alerts (confidence >70%)
-     - Portal change alerts (scraper failure)
-   - Suppress duplicate notifications: don't re-notify for same alert
-   - Implement quiet hours: don't notify between 10pm-7am (configurable)
-   - Test: Generate multiple alerts, verify first triggers notification, subsequent don't (deduplication)
+3. **Claims Tracking status card**
+   - Show: number of claims (total, denied with coverage discrepancy, missing expected claims)
+   - Show: number of claims requiring reprocessing request
+   - Next action: "Request reprocessing for 2 claims" or "All claims resolved"
+   - Status: green if no discrepancies, yellow if action needed, red if denied claims blocking care
+   - Test: Verify card reflects Epic 3 data accurately
 
-4. **User notification preferences**
-   - Settings UI section: "Notifications"
-   - Fields: enable/disable email notifications, email address, SMTP credentials, quiet hours (start/end), confidence threshold for notification
-   - Test: Disable notifications, verify NotificationRequest tuples written but email not sent; re-enable, verify email sent
+4. **COBRA Payment status card**
+   - Show: upcoming coverage period deadline (days remaining)
+   - Show: payment status (failed X attempts, no working path)
+   - Next action: "Escalate to employer" or "Payment confirmed"
+   - Status: red if deadline <7 days and unpaid, yellow if deadline <14 days, green if paid
+   - Test: Verify card reflects Epic 4 data accurately
 
-5. **Notification history and audit log**
-   - NotificationComplete tuples serve as audit log
-   - UI: "Notification History" page showing past notifications (timestamp, alert, recipient, delivery status)
-   - Test: Send notifications, view history, verify all logged
+5. **Overall Household status summary**
+   - Aggregate view: "X problems resolved, Y in progress, Z blocked"
+   - Priority: show most urgent next action across all problems
+   - Link to evidence exports for all problems
+   - Test: Verify overall status matches individual problem statuses
 
-6. **(Stretch) Push notification capability instance**
-   - Research DXOS-compatible push notification service (e.g., Firebase Cloud Messaging, Pushover)
-   - Evaluate constraint impact (per "Third-party components" section): cloud dependency for routing metadata
-   - If acceptable and DXOS supports: implement push notification instance (watches NotificationRequest with channel="push")
-   - Test: Trigger alert, verify push notification received on mobile device
-   - Document: If DXOS doesn't support or constraint impact too high, log as limitation
-
-**Testing approach**:
-- **Unit tests**: Trigger logic, notification suppression rules, email composition
-- **Integration tests**: End-to-end flow (alert generated → NotificationRequest tuple → email instance claims → email sent → NotificationComplete tuple)
-- **Manual tests**: Real email delivery with actual SMTP credentials to multiple email providers (Gmail, Outlook, etc.)
-
-**Validation criteria**:
-- Notification capability instance responds to NotificationRequest tuples and sends emails
-- Email content is clear and actionable (includes affected person, discrepancy summary, link to app)
-- Duplicate notifications are suppressed (same alert doesn't trigger multiple emails)
-- Quiet hours are respected (no emails between 10pm-7am)
-- User can configure notification preferences (enable/disable, email address, SMTP credentials, quiet hours, confidence threshold)
-- Notification delivery is logged for audit purposes (NotificationComplete tuples)
-- (If push implemented) Push notifications work on at least one mobile platform
-- (If push not implemented) Limitation is documented with reasons (constraint impact or DXOS limitations)
-
----
-
-### Epic 6: End-to-end testing & validation with real data
-**Dependencies**: All previous epics (requires complete system)
-
-**Tasks**:
-
-1. **Real family data ingestion via scrapers**
-   - Configure institutional sources for real employer and insurer
-   - Provide real credentials (encrypted in DXOS)
-   - Trigger scrapes (manually via scaffold first, then via scheduler)
-   - Verify snapshots are stored correctly
-   - Test: Compare stored data to actual portal screenshots, verify extraction accuracy
-
-2. **Baseline consistency check**
-   - Run detection engine on initial real data
-   - Verify no false positives (real data should be consistent initially, or if inconsistent, verify it's real discrepancy)
-   - If alerts generated: investigate whether real discrepancy or false positive
-   - Adjust detection rules if false positives found
-   - Test: Baseline detection should show accurate state (green if consistent, alert if real discrepancy)
-
-3. **Scraper reliability validation**
-   - Run scrapers on schedule (every 6 hours) for 7 days
-   - Log: successful scrapes, failures, portal change alerts
-   - Measure: scraper success rate, time to detect and alert portal changes
-   - Test: Scraping runs reliably without manual intervention
-
-4. **Headed mode transparency test**
-   - Use manual execution scaffold in headed mode (visible browser)
-   - Have non-technical family member observe scraper logging in and extracting data
-   - Questions: "Do you understand what the system is doing?" "Do you trust it with your credentials?"
-   - Document: feedback on transparency and trust
-
-5. **Simulated discrepancy injection**
-   - Manually create discrepant snapshot (e.g., edit DXOS data to simulate employer=active, insurer=inactive)
-   - Run detection, verify alert generated with appropriate confidence
-   - Verify evidence artifact accurately represents discrepancy
-   - Verify email notification sent
-   - Test: Alert should fire with high confidence, notification delivered within minutes
-
-6. **Notification delivery validation**
-   - Verify email notification from simulated discrepancy
-   - Check: subject line clear, body plain-language, link works, notification logged
-   - Test: Family member without context receives email and can understand what action to take
-
-7. **Non-technical user testing**
-   - Recruit non-technical family member as test user
-   - Task 1: "Tell me what your current coverage status is" (tests dashboard comprehension)
-   - Task 2: "There's an alert—what does it mean and what should you do?" (tests alert comprehension)
-   - Task 3: "Show me evidence to send to HR" (tests evidence viewer usability)
-   - Task 4: "Look at the detection rules—which rule would trigger if employer and insurer disagree?" (tests rules visibility)
-   - Record: time to complete, comprehension, confusion points
-   - Test: User completes tasks without assistance in <5 minutes each
-
-8. **24-hour detection validation**
-   - Inject discrepancy at T=0 (via manual data edit or wait for real discrepancy)
-   - Verify scraper runs within 6 hours (T=6 or earlier)
-   - Verify detection runs after scrape
-   - Verify alert generated by T=6 hours (worst case, next scheduled scrape)
-   - Test: Detection SLA is met (discrepancy → alert within 24 hours, typically within 6 hours)
-
-9. **Multi-day stability test**
-   - Run complete system continuously for 7 days with real data
-   - Monitor: scraper instances, detection engine, notification instance, UI
-   - Log: scrape runs, detection runs, alerts generated, notifications sent, false positive rate, system uptime, tuple processing delays
-   - Identify: any crashes, data corruption, missed detections, performance issues
-   - Test: System remains stable over extended period without manual intervention
-
-10. **Retrospective and learning capture**
-    - Document: What worked well? What was difficult?
-    - GenAI experience: Where did AI help? Where did it hinder? What surprised you?
-    - DXOS experience: Where did local-first help? Where did it constrain? Was tuple pattern valuable or over-complex?
-    - Scraper experience: How often did scrapers break? Was TDD/headed mode valuable? Did portal change detection work?
-    - Answer Proposal's success questions (Proposal section 7):
-      - How does local-first actually work in practice on DXOS?
-      - Is DXOS sufficient for building a usable system for early adopters like me?
-      - Can I perform effective end-to-end product work using GenAI?
-      - How often does my manual review agree with the system's automated results?
-    - Create retrospective document: lessons learned, recommendations for similar projects
+6. **Settings & configuration**
+   - Household members: list, add, edit, remove (Person entities)
+   - Institutional sources: list employer, insurer, COBRA administrator (for coverage snapshots)
+   - Data refresh prompt: "When did you last check insurer portal?" (reminder for manual data entry)
+   - Test: Add family member, update insurer name, verify persistence
 
 **Testing approach**:
-- **Real-world scenario testing**: Using actual family insurance data and credentials
-- **Usability testing**: Non-technical family members as participants
-- **Reliability testing**: Multi-day continuous operation without intervention
-- **Transparency testing**: Headed mode observation, rules visibility
-- **Retrospective**: Qualitative learning capture against Proposal's success criteria
+- **Unit tests**: Dashboard card rendering with mock data
+- **Integration tests**: Dashboard reflects real data from Epic 2/3/4 tools
+- **Usability test**: Household member views dashboard, answers "What problems are resolved? What's the next action?" in <30 seconds
 
 **Validation criteria**:
-- Real family data is ingested via automated scrapers and stored correctly
-- Scrapers run reliably on schedule for 7 consecutive days (>80% success rate)
-- Detection engine runs without false positives on baseline real data (or <10% false positive rate)
-- Simulated discrepancies generate alerts with correct confidence levels
-- Notifications are delivered reliably and are comprehensible to non-technical recipients
-- Non-technical users can complete core tasks (understand status, interpret alerts, access evidence, understand rules) without assistance
-- 24-hour detection requirement is met in practice (discrepancy → alert within 24 hours)
-- System runs stably for 7 consecutive days (>80% uptime, no data corruption)
-- Headed mode and rules visibility provide sufficient transparency for user trust
-- Retrospective artifacts document learning outcomes per Proposal's success criteria, including specific findings about GenAI, DXOS, and local-first architecture
+- Dashboard shows at-a-glance status for all Phase 1 problems
+- Status indicators (green/yellow/red) accurately reflect problem urgency
+- Next actions are clear and actionable (non-technical language)
+- Household can navigate from dashboard to detailed tools (Epic 2/3/4) in 1 click
+- **Overall Phase 1 validation**: Household reports measurable progress on ≥2 of 4 active problems
 
 ---
 
 ## Early de-risking actions
 
-The following actions should be completed within the first 2 weeks to reduce the biggest risks:
+The following actions should be completed in the **first 3 days** to reduce the biggest risks:
 
-### 1. DXOS proof-of-concept with tuple pattern validation (4-5 days)
-**Goal**: Validate that DXOS is mature enough to support this project, especially the tuple-space coordination pattern, before significant investment.
+### 1. DXOS proof-of-concept (1-2 days)
+**Goal**: Validate that DXOS can support Phase 1 requirements (data persistence, file storage for PDFs, queries, UI rendering) before committing to implementation.
 
 **Tasks**:
 - Install DXOS CLI and initialize project
-- Create simple schema (User, CoverageSnapshot, plus ScrapeRequest/ScrapeComplete tuple schemas)
-- Persist data, retrieve data, verify it survives restart
-- **Critical: Test atomic operations** - Can DXOS support atomic claim of tuples by competing processes?
-- Build minimal UI that renders DXOS data
-- Prototype tuple coordination: Process A writes ScrapeRequest, Process B atomically claims it, executes mock scrape, writes ScrapeComplete
-- Research: background tasks, notification patterns, data export options, multi-instance coordination
-- Document: what works, what doesn't, what's uncertain (especially tuple pattern viability)
+- Create simple schema: Person, Claim, ProviderBill (with PDF file)
+- Persist data, store PDF file, retrieve both, verify they survive restart
+- Build minimal UI that renders DXOS data and displays PDF
+- Test query: "Get all claims for person X where status=denied"
+- Document: what works, what doesn't, what's unclear
 
-**Success criteria**: Can store and retrieve structured insurance data using DXOS; basic UI renders data; tuple pattern works (atomic claim prevents race conditions); architectural gaps (if any) are documented.
+**Success criteria**: Can store household data (claims, bills) with PDF attachments using DXOS; basic UI renders data; queries work for filtering (e.g., denied claims). Architectural gaps (if any) are documented.
 
-**If this fails**:
-- If DXOS works but tuple pattern doesn't (no atomic operations): Simplify to monolithic architecture (single process handles scraping, detection, notification sequentially)
-- If DXOS has blocking limitations: Consider architectural pivot (e.g., SQLite + local-first UI, still respecting data ownership) OR accept DXOS limitations and adjust scope
+**If this fails**: Pivot to SQLite + local-first UI. Still respects data ownership constraint, but loses DXOS learning goal. Acceptable trade-off if DXOS blocks delivery.
+
+**Time budget**: 1-2 days max. If taking longer, DXOS may be too immature; pivot to SQLite.
 
 ---
 
-### 2. First scraper proof-of-concept with Puppeteer/Playwright (3-4 days)
-**Goal**: Validate that automated scraping is viable for real institutional portals before building full scraper framework.
+### 2. Bill reconciliation prototype with real data (1 day)
+**Goal**: Validate that manual bill-to-EOB matching is practical and helps household make payment decisions.
 
 **Tasks**:
-- Select browser automation library: test both Puppeteer and Playwright, choose one
-- Manually log in to real primary insurer portal (e.g., Sana Benefits)
-- Document: portal structure, authentication flow, what data is visible, anti-scraping protections
-- Build minimal scraper: automate login, navigate to coverage page, extract status fields
-- Test both headless (background) and headed (visible browser) modes
-- Capture portal HTML snapshot for TDD testing
-- Document: auth complexity (2FA?), extraction challenges, scraper fragility assessment
+- Build minimal UI: left panel (provider bill charges), right panel (EOB lines), match button
+- Load 1 real provider bill and corresponding EOB(s)
+- Household member attempts to match charges to EOB lines
+- Measure: time to complete, level of frustration, whether payment decision clearer after matching
 
-**Success criteria**: Can successfully scrape real portal in both headless and headed modes; extraction logic produces correct CoverageSnapshot; TDD test with captured HTML passes; challenges and fragilities are documented.
+**Success criteria**: Household member can complete matching in <15 minutes; can articulate "I can pay $X" or "I need itemized bill for $Y" after matching.
 
-**If this reveals high difficulty**:
-- If scraping is impossible (strong anti-bot, impossible 2FA): Pivot to manual input with optimized UX
-- If scraping works but is highly fragile: Accept fragility, invest in portal change detection and fast repair cycle
-- Document findings to inform Epic 2 scope
+**If this reveals issues**: If matching is too ambiguous (can't determine correct matches), simplify to "flag unmatched" workflow: system shows bill vs EOB side-by-side, user marks unmatched charges as "needs itemized detail."
+
+**Time budget**: 1 day (8 hours including UI building and testing).
 
 ---
 
-### 3. Detection algorithm prototype with real-world scenarios (2-3 days)
-**Goal**: Validate that discrepancy detection logic produces accurate results before building full engine.
+### 3. Claims denial detection with real data (4 hours)
+**Goal**: Validate that denied-claim-with-active-coverage detection logic identifies real discrepancies from household data.
 
 **Tasks**:
-- Create synthetic dataset based on real insurance scenarios:
-  - 3 family members × 2 sources (employer, insurer) × 10 timestamps = 60 snapshots
-  - Inject realistic discrepancies: employer=active + insurer=inactive, coverage lapse (active→inactive), dependent mismatch, effective date inconsistency
-  - Include edge cases: timing delays (employer updated, insurer not yet), partial information (one source missing data)
-- Implement basic rule-based detection (no confidence scoring yet, just binary alert/no alert)
-- Run detection on synthetic data, verify alerts generated for injected discrepancies
-- Measure: false positive rate, false negative rate, does detection logic match intuition?
-- Have non-technical person review results: "Does this alert make sense given the data?"
+- Load 2 real denied claims (from insurer portal screenshots)
+- Load corresponding coverage snapshots (employer, insurer, COBRA) for dates of service
+- Implement simple detection: if (claim.status === 'denied' && claim.denialReason.includes('coverage') && coverageSnapshot.status === 'active') → flag discrepancy
+- Run detection, verify it flags the 2 real denied claims
+- Generate evidence text: "Claim X denied for coverage, but coverage was active - see attached snapshot"
 
-**Success criteria**: Detection prototype identifies injected discrepancies with <20% false positive rate; logic is understandable and matches non-technical person's intuition; edge cases are handled reasonably.
+**Success criteria**: Detection logic correctly identifies 2 real denied claims with coverage discrepancies; evidence text is clear and actionable for reprocessing request.
 
-**If this reveals issues**:
-- If false positive rate >20%: Refine rule logic, add confidence scoring earlier than planned
-- If rules are too complex to explain: Simplify detection (e.g., cross-source only, no temporal analysis initially)
-- Document findings to inform Epic 3 rule design
+**If this reveals issues**: If denial reasons don't include "coverage" keywords, expand keyword list. If coverage snapshots don't align with claim dates, add "coverage effective date" field to snapshots.
+
+**Time budget**: 4 hours.
 
 ---
 
-### 4. Non-technical comprehension test with low-fidelity mockups (1 day)
-**Goal**: Ensure core concepts (coverage status, discrepancy, alert, evidence, rules) are understandable before building full UI.
+### 4. COBRA evidence log with real timeline (2 hours)
+**Goal**: Validate that evidence logging provides useful escalation artifact for COBRA payment issue.
 
 **Tasks**:
-- Create paper mockups or Figma wireframes of:
-  - Dashboard (status cards per family member)
-  - Alert inbox and detail view
-  - Evidence viewer (snapshot comparison)
-  - Rules visibility (list of detection rules)
-- Show to non-technical family member (spouse, parent, friend)
-- Ask:
-  - "What does this screen tell you?"
-  - "What would you do if you saw this alert?"
-  - "Why do you think this alert was triggered?" (after showing rules)
-- Document: confusion points, terminology issues, suggested changes
+- Build minimal evidence log form (timestamp, summary, details, attachment)
+- Household member logs 3 real payment attempts (with dates, outcomes, screenshots)
+- Generate chronological timeline view
+- Generate escalation summary text: "3 payment attempts since [date], all failed - evidence attached"
 
-**Success criteria**: Non-technical person can explain status and alerts without help; identified terminology/UX issues inform Epic 4 design; person understands why alert fired when shown rules.
+**Success criteria**: Timeline shows clear chronological record of payment failures; escalation summary provides useful artifact for employer/administrator escalation.
 
-**If this reveals confusion**:
-- Iterate on plain-language explanations (e.g., avoid terms like "snapshot," "tuple," "confidence score" without explanation)
-- Simplify visual design (less information per screen)
-- Improve rules visibility presentation (plain language, examples)
-- Repeat test with revised mockups until comprehension achieved
+**If this reveals issues**: If timeline is unclear, improve visual presentation (add icons, color-code outcomes). If summary text is insufficient, add template fields (dates, contact names, case numbers).
+
+**Time budget**: 2 hours.
 
 ---
 
-### 5. End-to-end critical path prototype (3-4 days)
-**Goal**: Prove the full flow (scrape → storage → detection → alert → notification) works before building full feature set.
+### 5. End-to-end Phase 1 problem resolution simulation (4 hours)
+**Goal**: Validate that Epic 2/3/4 tools, in combination, help household make progress on active problems.
 
 **Tasks**:
-- Minimal implementation connecting all pieces:
-  - Scraper: use first scraper from de-risking action #2, triggered manually (not via tuple yet)
-  - Storage: write CoverageSnapshot to DXOS
-  - Detection: run simple detection rule from de-risking action #3
-  - Alert: generate DiscrepancyAlert if discrepancy found
-  - Notification: send email using Nodemailer (not via tuple, direct call)
-- Use real family data for one person, one institutional source
-- Inject discrepancy (manually edit DXOS data after scrape to simulate mismatch)
-- Run detection, verify alert generated
-- Verify email sent with alert details
-- Measure: time from discrepancy injection to notification delivery
+- Use prototypes from de-risking actions #2, #3, #4
+- Household member completes workflows:
+  - Reconcile 1 provider bill (Epic 2 prototype)
+  - Review denied claims, identify 1 with coverage discrepancy (Epic 3 prototype)
+  - Review COBRA payment timeline, generate escalation summary (Epic 4 prototype)
+- Interview: "Did these tools help? What's still unclear? What's missing?"
+- Measure: Did household make progress (payment decision, reprocessing request drafted, escalation evidence ready)?
 
-**Success criteria**: End-to-end flow works; notification delivered; timing meets 24-hour requirement with large headroom (should be minutes, not hours); can demonstrate working system end-to-end even if unpolished.
+**Success criteria**: Household reports tools helped make progress on ≥2 of 4 Phase 1 problems; identifies specific next actions (e.g., "call insurer with this evidence," "request itemized bill from provider").
 
-**If this reveals issues**:
-- Identify and fix bottlenecks (e.g., DXOS queries slow, scraping takes too long, email delivery fails)
-- Simplify architecture if coordination is too complex (e.g., defer tuple pattern to later)
-- Adjust scope if any piece is fundamentally blocked
-- Document findings to inform Epic sequencing and priorities
+**If this reveals issues**: Prioritize gaps identified by household. If reconciliation most helpful, invest more in Epic 2. If claims tracking most helpful, invest more in Epic 3.
+
+**Time budget**: 4 hours (assuming prototypes from #2/#3/#4 exist).
 
 ---
 
 ## Readiness checklist
 
-Before converting this Plan into work items (Jira/Linear/etc.), confirm:
+Before converting this Plan into work items, confirm:
 
 ### Detail completeness
-- [ ] Are epics broken down into specific, independently understandable tasks?
-- [ ] Are dependencies between epics and tasks clearly identified?
-- [ ] Are validation criteria defined for each epic?
-- [ ] Are testing approaches specified (unit/integration/E2E)?
-- [ ] Are architectural decisions (tuple pattern, minimal UI, scraper-first) reflected in tasks?
+- [ ] Are epics broken down into specific, independently deliverable tasks?
+- [ ] Are dependencies between epics clearly identified?
+- [ ] Are validation criteria defined for each epic (observable outcomes)?
+- [ ] Are testing approaches specified (unit/integration/usability)?
+- [ ] Are de-risking actions scheduled in first 3 days?
 
 ### Constraint adherence
-- [ ] Are the 10 constraints from the Proposal reflected in epic/task design?
-- [ ] Are non-negotiables (1-day detection, non-technical usability, local-first ownership, transparency) explicitly validated?
-- [ ] Are guardrails clear enough to be referenced during code review?
-- [ ] Are third-party component decisions evaluated against constraints?
+- [ ] Does sequencing follow constraint-first progression (Phase 1 problems before Phase 2)?
+- [ ] Is each epic scoped as "smallest useful increment"?
+- [ ] Are "days not weeks" timelines realistic (Epic 1: ≤3 days, Epic 2/3/4: ≤5 days each)?
+- [ ] Are non-negotiables (transparency, justified confidence, local-first, non-technical usability) validated in each epic?
+- [ ] Are manual workflows accepted for Phase 1 (automation deferred)?
 
 ### Decision clarity
-- [ ] Are the 5 unknowns resolved with decisions documented?
-- [ ] Are additional requirements from Unknown #1 (scraper architecture) incorporated into Epic 2?
-- [ ] Are third-party component trade-offs documented (rules engine, email, browser automation)?
+- [ ] Are the 6 unknowns resolved with decisions documented?
+- [ ] Are decision owners identified?
+- [ ] Are decision points tied to specific epics/spikes?
+- [ ] Is pivot path documented if DXOS fails (SQLite alternative)?
 
 ### Risk mitigation
-- [ ] Are the 7 risks (including tuple pattern coordination, scraper fragility) documented with mitigations?
-- [ ] Are early de-risking actions (5 spikes) scheduled before dependent work?
+- [ ] Are the 7 risks documented with realistic mitigations?
 - [ ] Are detection mechanisms in place for each risk?
-- [ ] Is scraper fragility accepted as expected condition with mitigation strategy?
+- [ ] Is "external resolution" accepted as success for some problems (e.g., COBRA payment)?
+- [ ] Is "evidence provision" accepted as success when system can't auto-resolve?
+
+### Problem-driven validation
+- [ ] Is success measured by Phase 1 problem resolution, not system completeness?
+- [ ] Are validation criteria tied to real household problems (not abstract metrics)?
+- [ ] Is household involvement explicit in testing/validation (usability tests, interviews)?
+- [ ] Is retrospective planned after Phase 1 to evaluate constraint-first approach?
 
 ### Learning focus
-- [ ] Is learning captured as an explicit outcome (not just delivery)?
-- [ ] Are GenAI, DXOS, and local-first experiences documented as meta-goals?
-- [ ] Are retrospectives and reflection built into Epic 6?
-- [ ] Is tuple pattern evaluated as learning experiment (can be simplified if over-complex)?
-
-### Handoff readiness
-- [ ] Can a new team read this Plan and understand what to build?
-- [ ] Is the architectural pattern (tuple-space, scraper independence, minimal UI) clearly described?
-- [ ] Are references to DXOS docs, third-party libraries, and evaluation criteria included?
-- [ ] Is the Proposal linked for full context?
+- [ ] Is learning captured as explicit outcome (GenAI collaboration, DXOS patterns)?
+- [ ] Are pivot decisions documented as learning artifacts (e.g., if DXOS insufficient)?
+- [ ] Is Proposal's success questions framework referenced for retrospective?
 
 ---
 
@@ -1137,28 +932,36 @@ Before converting this Plan into work items (Jira/Linear/etc.), confirm:
 
 This Plan is **ready for implementation**.
 
-Decisions from review are incorporated:
-- **Data acquisition**: Automated scraping (Option B) with extensive architectural scaffolding
-- **Notification**: Email (Option B), push as stretch (Option C)
-- **Multi-user**: Hierarchical (Option C)
-- **Detection**: Rule-based with confidence (Option C), rules visible to users
-- **Status representation**: Multi-dimensional internal (Option C), institutional terminology external (Option B)
-- **Architecture**: Linda-like tuple pattern for loose coupling, scraper independence, minimal UI
-- **Third-party components**: Evaluated and recommended where appropriate (Puppeteer/Playwright, Nodemailer, json-rules-engine)
+**Key decisions incorporated**:
+- **Data capture**: Manual entry (Option C hybrid) for Phase 1; defer scraping to Phase 2
+- **Reconciliation**: Manual matching UI (Option A) for Phase 1; defer automation if not constraining
+- **COBRA**: Evidence capture + portal spike (Option C); accept external resolution
+- **Claim tracking**: Progressive detail (Option C); start high-level, expand as needed
+- **Architecture**: Monolithic DXOS (Option B) for Phase 1; revisit tuple pattern for Phase 2
+- **Multi-user**: Single Space (Option A); defer multi-user complexity
+
+**Sequencing**: Constraint-first, problem-driven:
+- Epic 1 (DXOS foundation): 2-3 days
+- Epic 2 (Bill reconciliation): 3-5 days (solves Phase 1 Problem 1)
+- Epic 3 (Claims tracking): 3-5 days (solves Phase 1 Problems 2 & 4)
+- Epic 4 (COBRA tracking): 2-3 days (supports Phase 1 Problem 3 resolution)
+- Epic 5 (Dashboard): 1-2 days (integrates Epic 2/3/4)
+
+**Total Phase 1 timeline**: 11-18 days (target: 2 weeks)
 
 **Next steps**:
-1. Begin Epic 1: DXOS foundation and tuple pattern proof-of-concept (de-risking action #1)
-2. Parallel: Begin first scraper proof-of-concept (de-risking action #2)
-3. After de-risking actions complete (week 2-3), create Epic 2-6 tickets in planning tool
-4. Continuous: Document learning experiences (GenAI, DXOS, scrapers) as retrospective input
+1. **Days 1-3**: Complete all 5 de-risking actions; validate approach
+2. **Days 4-6**: Epic 1 (DXOS foundation)
+3. **Days 7-11**: Epic 2 (Bill reconciliation) — first problem resolved
+4. **Days 12-16**: Epic 3 (Claims tracking) — second/fourth problems resolved
+5. **Days 17-19**: Epic 4 (COBRA tracking) — third problem evidence ready
+6. **Days 20-21**: Epic 5 (Dashboard) — integrated view
+7. **Day 22**: Phase 1 retrospective — evaluate constraint-first progression, identify Phase 2 constraint
 
-**Ticket creation**: Once de-risking actions validate architecture, convert epics and tasks into tickets with:
-- Constraints and validation criteria as acceptance criteria
-- Third-party component decisions and evaluations documented
-- Links to this Plan and Proposal for context
+**Phase 2 planning**: After Phase 1 complete, re-evaluate constraints. If manual data entry becomes most constraining (taking >10 min/day), prioritize scraping automation. If prevention more valuable than ongoing resolution, address Phase 2 problems (dependents dropped, enrollment errors, etc.).
 
 ---
 
-*This Plan implements the Proposal documented in [docs/planning/proposal.md](./proposal.md) with decisions from review incorporated.*
+*This Plan implements the Proposal documented in [docs/planning/proposal.md](./proposal.md) using constraint-first progression to resolve active household harm in days.*
 
 *End of Plan*
